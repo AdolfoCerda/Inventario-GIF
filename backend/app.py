@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Variables para conexión a la base de datos
 host = 'localhost'
-dbname = 'tu_base_de_datos'
+dbname = 'InventarioGIF'
 user = 'postgres'
 password = '0000'
 port = 5432
@@ -20,7 +20,7 @@ def home():
     # Probar conexion con una consulta a la bd
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM public.tu_tabla")
+    cursor.execute("SELECT * FROM admin.usuarios")
     resultado = cursor.fetchall()
     return resultado
 

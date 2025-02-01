@@ -1,0 +1,77 @@
+En postgres crear la bd 'InventarioGIF' y dentro el esquema 'admin', luego ejecutar un query con la siguiente linea
+
+SET search_path TO admin,"$user",public
+
+// Ahora ejecutar todo lo siguiente
+
+CREATE TABLE IF NOT EXISTS Usuarios (
+  iId SERIAL PRIMARY KEY,
+  vUser varchar(500) NOT NULL,
+  vPassword varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Equipos (
+  iId SERIAL NOT NULL,
+  iSitio integer NOT NULL,
+  vNombre varchar(500) NOT NULL,
+  bEncendido boolean NOT NULL,
+  vEstatus varchar(20),
+  dFechaEstatus date NOT NULL,
+  iAmbiente integer NOT NULL,
+  iTipo integer NOT NULL,
+  vCluster varchar(500) NOT NULL,
+  vChassis varchar(500),
+  vBahia varchar(500),
+  iMarca integer NOT NULL,
+  vModelo varchar(500) NOT NULL,
+  vSerial integer PRIMARY KEY,
+  iNucleos integer,
+  iMemoria integer,
+  iServicio integer NOT NULL,
+  dFechaInicioSoporte date NOT NULL,
+  dFechaFinSoporte date NOT NULL,
+  dFechaFinVida date NOT NULL,
+  vIpRed varchar(50),
+  vIpILO varchar(50),
+  iDueño integer NOT NULL,
+  iHDD integer
+);
+
+CREATE TABLE IF NOT EXISTS Sitios (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Ambientes (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Tipos (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Servicios (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Marcas (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Dueños (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iSitio_fk FOREIGN KEY (iSitio) REFERENCES Sitios (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iAmbiente_fk FOREIGN KEY (iAmbiente) REFERENCES Ambientes (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iTipo_fk FOREIGN KEY (iTipo) REFERENCES Tipos (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iMarca_fk FOREIGN KEY (iMarca) REFERENCES Marcas (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iServicio_fk FOREIGN KEY (iServicio) REFERENCES Servicios (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iDueño_fk FOREIGN KEY (iDueño) REFERENCES Dueños (iId);
+
+INSERT INTO usuarios (vuser, vpassword) VALUES ('adolfo', '123');

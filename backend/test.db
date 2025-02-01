@@ -1,8 +1,0 @@
-CREATE DATABASE tu_base_de_datos;
-\c tu_base_de_datos
-CREATE TABLE tu_tabla (
-    id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100),
-    descripcion TEXT
-);
-INSERT INTO tu_tabla (nombre, descripcion) VALUES ('Ejemplo', 'Esto es una prueba');
