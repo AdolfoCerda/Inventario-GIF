@@ -13,8 +13,8 @@
               <p class="text-white-50 mb-5">Por favor ingresa tu usuario y contraseña!</p>
 
               <div data-mdb-input-init class="form-outline form-white mb-4">
-                <input type="email" id="typeEmailX" class="form-control form-control-lg" />
-                <label class="form-label" for="typeEmailX">Usuario</label>
+                <input type="text" id="typeUsuarioX" class="form-control form-control-lg" />
+                <label class="form-label" for="typeUsuarioX">Usuario</label>
               </div>
 
               <div data-mdb-input-init class="form-outline form-white mb-4">
@@ -23,7 +23,7 @@
               </div>
 
 
-              <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+              <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="button" @click="iniciarSesion">Login</button>
 
               <div class="d-flex justify-content-center text-center mt-4 pt-1">
                 <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
@@ -42,6 +42,42 @@
   </div>
 </section>
 </template>
+
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      usuario: "",
+      password: "",
+      mensaje: "",
+    };
+  },
+  methods: {
+    async iniciarSesion() {
+      try {
+        const response = await axios.post("http://localhost:5000/login", {
+          usuario: this.usuario,
+          password: this.password,
+        });
+
+        // Verificar la respuesta del backend
+        if (response.data.success) {
+          alert("Inicio de sesión exitoso");
+          // Redirige a otra página (por ejemplo, el menú principal)
+          this.$router.push("/Menu");
+        } else {
+          this.mensaje = "Usuario o contraseña incorrectos";
+        }
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        this.mensaje = "Hubo un problema con el servidor. Inténtalo más tarde.";
+      }
+    },
+  },
+};
+</script>
 
 <style>
     .gradient-custom {
