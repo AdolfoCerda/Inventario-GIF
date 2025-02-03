@@ -57,22 +57,21 @@ export default {
   methods: {
     async iniciarSesion() {
       try {
-        const response = await axios.post("http://localhost:5000/login", {
+        const response = await axios.post("http://127.0.0.1:5000/api/login", {
           usuario: this.usuario,
           password: this.password,
-        });
-
-        // Verificar la respuesta del backend
-        if (response.data.success) {
-          alert("Inicio de sesión exitoso");
-          // Redirige a otra página (por ejemplo, el menú principal)
-          this.$router.push("/Menu");
+        },
+        { headers: {"Content-Type": "application/json"}}
+      );
+        if (response.data.status === "ok") {
+          this.mensaje = response.data.mensaje;
+          // Aquí puedes redirigir al usuario o realizar otras acciones
         } else {
-          this.mensaje = "Usuario o contraseña incorrectos";
+          this.mensaje = response.data.mensaje;
         }
       } catch (error) {
         console.error("Error al iniciar sesión:", error);
-        this.mensaje = "Hubo un problema con el servidor. Inténtalo más tarde.";
+        this.mensaje = "Hubo un error al intentar iniciar sesión.";
       }
     },
   },
