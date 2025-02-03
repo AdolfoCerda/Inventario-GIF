@@ -3,7 +3,7 @@ from flask_cors import CORS
 from psycopg2 import connect, sql
 
 app = Flask(__name__)
-CORS(app) # Habilitar CORS para evitar problemas al conectar el frontend
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # Habilitar CORS para todas las rutas bajo /api
 
 # Variables para conexión a la base de datos
 host = 'localhost'
@@ -19,27 +19,27 @@ def get_connection():
 
 @app.get('/')
 def home():
-    # Probar conexion con una consulta a la bd
+    # Probar conexión con una consulta a la bd
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM admin.usuarios")
     resultado = cursor.fetchall()
-    return resultado
+    return jsonify(resultado)
 
 # Login usuario
 @app.post('/api/login')
 def login():
-    datos = request.json
+    datos = request.get_json()  # Obtener los datos JSON de la solicitud
     usuario = datos.get("usuario")
     password = datos.get("password")
 
     if not usuario or not password:
-        return jsonify({"mensaje": "Usuario y contraseña requeridos"}), 400
+        return jsonify({"mensaje": "Usuario y contraseña requeridos", "status": "error"}), 400
 
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        query = sql.SQL("SELECT * FROM usuarios WHERE vuser = %s AND vpassword = %s")
+        query = sql.SQL("SELECT * FROM admin.usuarios WHERE vuser = %s AND vpassword = %s")
         cursor.execute(query, (usuario, password))
         resultado = cursor.fetchone()
 
@@ -52,7 +52,7 @@ def login():
             return jsonify({"mensaje": "Datos Incorrectos", "status": "error"}), 401
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e), "status": "error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
