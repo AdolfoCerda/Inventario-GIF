@@ -84,7 +84,7 @@ export default {
 
         // Si el código de estado es 200, redirigir a HomeView
         if (response.status === 200) {
-          this.$router.push({ name: "home" });
+          this.$router.push({ name: "menu" });
         }
       } catch (error) {
         // Si el código de estado es 401, mostrar "Datos Incorrectos"
