@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import HomeView from '../views/HomeView.vue'; // Importa el componente HomeView
 import Menu from '../views/Menu.vue';
+import GDA from '../views/GestionDeActivos.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/menu',
       name: 'menu',
       component: Menu, // Ruta para Menu
+    },
+    {
+      path: '/GestionDeActivos',
+      name: 'GestionDeActivos',
+      component: GDA, // Ruta para Gestion de Activos
     },
     {
       path: '/about',

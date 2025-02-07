@@ -3,7 +3,7 @@
       <!-- Header -->
       <header class="header">
         <div class="logo-container">
-          <img src="../assets/logo.png" alt="Logo" class="logo" />
+          <img src="../assets/images/logo-coppel.png" alt="Logo" class="logo" />
           <span class="company-label">Coppel</span>
         </div>
         <div class="user-info">
@@ -13,14 +13,27 @@
       </header>
   
       <!-- Contenido Principal -->
-      <div class="content">
-        <div class="icon-container">
-          <div class="icon-item" v-for="(icon, index) in icons" :key="index" @click="onIconClick(index)">
-            <i class="icon">{{ icon.symbol }}</i>
-            <span class="icon-label">{{ icon.label }}</span>
-          </div>
-        </div>
+    <div class="content">
+      <div class="icon-container">
+        <!-- Primer ícono: Gestion de Activos -->
+        <router-link to="/GestionDeActivos" class="icon-item">
+          <i class="icon">🏠</i>
+          <span class="icon-label">Gestión de Activos</span>
+        </router-link>
+
+        <!-- Segundo ícono: Reportes -->
+        <router-link to="/reports" class="icon-item">
+          <i class="icon">📊</i>
+          <span class="icon-label">Reportes</span>
+        </router-link>
+
+        <!-- Tercer ícono: Configuraciones -->
+        <router-link to="/settings" class="icon-item">
+          <i class="icon">⚙️</i>
+          <span class="icon-label">Configuraciones</span>
+        </router-link>
       </div>
+    </div>
     </div>
   </template>
   
@@ -56,7 +69,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: yellow;
+    background-color: #ffe94b;
     padding: 10px 20px;
   }
   
