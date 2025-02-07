@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS Equipos (
   iSitio integer NOT NULL,
   vNombre varchar(500) NOT NULL,
   bEncendido boolean NOT NULL,
-  vEstatus varchar(20),
+  vEstatus varchar(20) NOT NULL,
   dFechaEstatus date NOT NULL,
   iAmbiente integer NOT NULL,
   iTipo integer NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS Equipos (
   vBahia varchar(500),
   iMarca integer NOT NULL,
   vModelo varchar(500) NOT NULL,
-  vSerial integer PRIMARY KEY,
+  vSerial varchar(20) PRIMARY KEY,
   iNucleos integer,
   iMemoria integer,
   iServicio integer NOT NULL,
@@ -75,3 +75,17 @@ ALTER TABLE Equipos ADD CONSTRAINT Equipos_iServicio_fk FOREIGN KEY (iServicio) 
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iDueño_fk FOREIGN KEY (iDueño) REFERENCES Dueños (iId);
 
 INSERT INTO usuarios (vuser, vpassword) VALUES ('adolfo', '123');
+
+INSERT INTO Equipos (
+  iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
+  iAmbiente, iTipo, vCluster, vChassis, vBahia, 
+  iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+  iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+  vIpRed, vIpILO, iDueño, iHDD
+) VALUES (
+  1, 'Server 1 (HuellasMTY01)', true, 'Activo', '2024-06-05', 
+  1, 1, 'Huella Triara', 'Fabric B', 'A', 
+  1, 'UCSB-B480-M5', 'FLM24470503', 112, 1572864, 
+  1, '2024-06-01', '2025-10-31', '2029-05-31', 
+  '192.168.1.1', '192.168.1.2', 1, 2048
+);
