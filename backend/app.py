@@ -17,15 +17,6 @@ def get_connection():
     conn = connect(host=host, database=dbname, user=user, password=password, port=port)
     return conn
 
-@app.get('/')
-def home():
-    # Probar conexión con una consulta a la bd
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM admin.usuarios")
-    resultado = cursor.fetchall()
-    return jsonify(resultado)
-
 # Login usuario
 @app.post('/api/login')
 def login():
@@ -53,6 +44,18 @@ def login():
 
     except Exception as e:
         return jsonify({"error": str(e), "status": "error"}), 500
+    
+@app.post('/api/activo')
+def activo():
+    datos = request.get_json()  # Obtener el serial para buscar activo
+    serial = datos.get("serial")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = sql.SQL("SELECT * FROM admin.equipos WHERE vserial = %s")
+    cursor.execute(query, (serial))
+    resultado = cursor.fetchall()
+    return jsonify(resultado)
 
 if __name__ == '__main__':
     app.run(debug=True)
