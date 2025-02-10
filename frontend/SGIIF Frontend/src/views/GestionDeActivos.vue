@@ -1,7 +1,7 @@
 <template>
     <header class="header">
         <div class="logo-container">
-          <img src="../assets/logo.png" alt="Logo" class="logo" />
+          <img src="../assets/images/logo-coppel.png" alt="Logo" class="logo" />
           <span class="company-label">Coppel</span>
         </div>
         <div class="user-info">
@@ -61,6 +61,154 @@
         </select>
       </div>
 
+      <!-- Campo: Fecha de Estatus -->
+      <div class="form-group">
+        <label for="statusDate">Fecha de Estatus:</label>
+        <input
+          type="date"
+          id="supportStartDate"
+          v-model="asset.statusDate"
+          required
+        />
+      </div>
+
+      <!-- Campo: Ambiente (Catálogo) -->
+      <div class="form-group">
+        <label for="ambiente">Ambiente:</label>
+        <select id="ambiente" v-model="asset.Ambiente" required>
+          <option v-for="option in catalogOptions.Ambiente" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Campo: Tipo (Catálogo) -->
+      <div class="form-group">
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" v-model="asset.Tipo" required>
+          <option v-for="option in catalogOptions.Tipo" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Campo: Cluster -->
+      <div class="form-group">
+        <label for="cluster">Cluster:</label>
+        <input type="text" id="cluster" v-model="asset.Cluster" required />
+      </div>
+
+      <!-- Campo: Chassis -->
+      <div class="form-group">
+        <label for="chassis">Chassis:</label>
+        <input type="text" id="chassis" v-model="asset.Chassis" required />
+      </div>
+
+      <!-- Campo: Bahia -->
+      <div class="form-group">
+        <label for="bahia">Bahia:</label>
+        <input type="text" id="bahia" v-model="asset.Bahia" required />
+      </div>
+
+      <!-- Campo: Marca (Catálogo) -->
+      <div class="form-group">
+        <label for="marca">Marca:</label>
+        <select id="marca" v-model="asset.Marca" required>
+          <option v-for="option in catalogOptions.Marca" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Campo: Modelo -->
+      <div class="form-group">
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" v-model="asset.Modelo" required />
+      </div>
+
+      <!-- Campo: Nucleos -->
+      <div class="form-group">
+        <label for="nucleos">Nucleos:</label>
+        <input type="text" id="nucleos" v-model="asset.Nucleos" required />
+      </div>
+
+      <!-- Campo: Memoria -->
+      <div class="form-group">
+        <label for="memoria">Memoria:</label>
+        <input type="text" id="memoria" v-model="asset.Memoria" required />
+      </div>
+
+      <!-- Campo: Servicios (Catálogo) -->
+      <div class="form-group">
+        <label for="servicios">Servicios:</label>
+        <select id="servicios" v-model="asset.Servicios" required>
+          <option v-for="option in catalogOptions.Servicios" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Campo: Fecha Inicio Soporte -->
+      <div class="form-group">
+        <label for="fechaInicioSoporte">Fecha de Inicio de Soporte:</label>
+        <input
+          type="date"
+          id="fechaInicioSoporte"
+          v-model="asset.FechaInicioSoporte"
+          required
+        />
+      </div>
+
+      <!-- Campo: Fecha Fin Soporte -->
+      <div class="form-group">
+        <label for="fechaFinSoporte">Fecha de Fin de Soporte:</label>
+        <input
+          type="date"
+          id="fechaFinSoporte"
+          v-model="asset.FechaFinSoporte"
+          required
+        />
+      </div>
+
+      <!-- Campo: Fecha Fin Vida -->
+      <div class="form-group">
+        <label for="fechaFinVida">Fecha de Vida:</label>
+        <input
+          type="date"
+          id="fechaFinVida"
+          v-model="asset.FechaFinVida"
+          required
+        />
+      </div>
+
+      <!-- Campo: IP Red -->
+      <div class="form-group">
+        <label for="ipRed">IP Red:</label>
+        <input type="text" id="ipRed" v-model="asset.IpRed" required />
+      </div>
+
+      <!-- Campo: IP ILO -->
+      <div class="form-group">
+        <label for="ipILO">IP ILO:</label>
+        <input type="text" id="ipILO" v-model="asset.IpILO" required />
+      </div>
+
+      <!-- Campo: Dueño (Catálogo) -->
+      <div class="form-group">
+        <label for="dueño">Dueño:</label>
+        <select id="dueño" v-model="asset.Dueño" required>
+          <option v-for="option in catalogOptions.Dueño" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Campo: HDD -->
+      <div class="form-group">
+        <label for="hdd">HDD:</label>
+        <input type="text" id="hdd" v-model="asset.HDD" required />
+      </div>
+
       <!-- Resto de los campos -->
       <!-- ... (repite la estructura para los demás campos) ... -->
 
@@ -85,12 +233,35 @@
         name: '',
         powerStatus: '',
         status: '',
+        statusDate: '',
+        Ambiente: '',
+        Tipo: '',
+        Cluster: '',
+        Chassis: '',
+        Bahia: '',
+        Marca: '',
+        Modelo: '',
+        Nucleos: '',
+        Memoria: '',
+        Servicios: '',
+        FechaInicioSoporte: '',
+        FechaFinSoporte: '',
+        FechaFinVida: '',
+        IpRed: '',
+        IpILO: '',
+        Dueño: '',
+        HDD: ''
         // Agrega aquí el resto de los campos
       },
       catalogOptions: {
         site: ['Sitio 1', 'Sitio 2', 'Sitio 3'],
         powerStatus: ['Encendido', 'Apagado'],
         status: ['Activo', 'Inactivo'],
+        Ambiente: ['Producción', 'Otro'],
+        Tipo: ['1', '2'],
+        Marca: ['Cisco', 'Otro'],
+        Servicios: ['1', '2'],
+        Dueño: ['Coppel', 'Otro']
         // Agrega aquí el resto de los catálogos
       }
       };
