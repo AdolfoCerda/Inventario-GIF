@@ -222,6 +222,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
    export default {
     data() {
       return {
@@ -267,6 +269,89 @@
       };
     },
     methods: {
+      // Verifica si el activo ya existe
+      async checkExistingAsset() {
+        if (!this.asset.serialNumber) return;
+
+        try {
+          const response = await axios.post('/api/activo', {
+            serial: this.asset.serialNumber
+          });
+
+          if (response.data.error) {
+            alert(response.data.error); // Muestra un mensaje si no se encuentra el activo
+          } else {
+            // Rellena el formulario con los datos del activo
+            this.asset = { ...response.data };
+          }
+        } catch (error) {
+          console.error('Error al buscar el activo:', error);
+          alert('Error al buscar el activo');
+        }
+      },
+
+      // Maneja el envío del formulario
+      async handleSubmit() {
+        try {
+          if (this.asset.id) {
+            // Actualizar activo existente
+            await axios.put(`/api/activos/${this.asset.id}`, this.asset);
+            alert('Activo actualizado correctamente');
+          } else {
+            // Agregar nuevo activo
+            await axios.post('/api/activos', this.asset);
+            alert('Activo agregado correctamente');
+          }
+        } catch (error) {
+          console.error('Error al guardar el activo:', error);
+          alert('Error al guardar el activo');
+        }
+      },
+
+      // Elimina un activo (cambia su estatus a Inactivo)
+      async deleteAsset() {
+        if (confirm('¿Estás seguro de eliminar este activo?')) {
+          try {
+            this.asset.status = 'Inactivo'; // Cambia el estatus a Inactivo
+            await axios.put(`/api/activos/${this.asset.id}`, this.asset);
+            alert('Activo eliminado correctamente');
+            this.resetForm();
+          } catch (error) {
+            console.error('Error al eliminar el activo:', error);
+            alert('Error al eliminar el activo');
+          }
+        }
+      },
+
+      // Reinicia el formulario
+      resetForm() {
+        this.asset = {
+          id: null,
+          serialNumber: '',
+          site: '',
+          name: '',
+          powerStatus: '',
+          status: '',
+          statusDate: '',
+          Ambiente: '',
+          Tipo: '',
+          Cluster: '',
+          Chassis: '',
+          Bahia: '',
+          Marca: '',
+          Modelo: '',
+          Nucleos: '',
+          Memoria: '',
+          Servicios: '',
+          FechaInicioSoporte: '',
+          FechaFinSoporte: '',
+          FechaFinVida: '',
+          IpRed: '',
+          IpILO: '',
+          Dueño: '',
+          HDD: ''
+        };
+      }
     }
   };
 </script>
