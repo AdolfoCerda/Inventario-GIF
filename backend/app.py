@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from psycopg2 import connect, sql
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)  # Habilitar CORS para todas las rutas bajo /api
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # Habilitar CORS para todas las rutas bajo /api
 
 # Variables para conexión a la base de datos
 host = 'localhost'
@@ -38,19 +38,12 @@ def login():
         conn.close()
 
         if resultado:
-            session['vuser'] = usuario
             return jsonify({"mensaje": "Inicio de Sesión Exitoso", "status": "ok"}), 200
         else:
             return jsonify({"mensaje": "Datos Incorrectos", "status": "error"}), 401
 
     except Exception as e:
         return jsonify({"error": str(e), "status": "error"}), 500
-    
-@app.route('/check-session', methods=['GET'])
-def check_session():
-    if 'user' in session:  # Verifica si el usuario está en sesión
-        return jsonify({"authenticated": True})
-    return jsonify({"authenticated": False}), 401
     
 @app.post('/api/activo')
 def activo():
