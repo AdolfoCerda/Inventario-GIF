@@ -1,7 +1,7 @@
 <template>
     <header class="header">
         <div class="logo-container">
-          <img src="../assets/images/logo-coppel.png" alt="Logo" class="logo" />
+          <img src="../assets/images/images/logo-coppel-coppel.png" alt="Logo" class="logo" />
           <span class="company-label">Coppel</span>
         </div>
         <div class="user-info">
@@ -211,6 +211,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 import axios from 'axios';
 
    export default {
