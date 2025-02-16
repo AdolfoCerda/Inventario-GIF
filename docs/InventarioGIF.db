@@ -75,7 +75,12 @@ ALTER TABLE Equipos ADD CONSTRAINT Equipos_iServicio_fk FOREIGN KEY (iServicio) 
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iDueño_fk FOREIGN KEY (iDueño) REFERENCES Dueños (iId);
 
 INSERT INTO usuarios (vuser, vpassword) VALUES ('adolfo', '123');
-
+INSERT INTO Sitios (vNombre) VALUES ('TRIARA');
+INSERT INTO Ambientes (vNombre) VALUES ('Produccion');
+INSERT INTO Tipos (vNombre) VALUES ('Almacenamiento');
+INSERT INTO Marcas (vNombre) VALUES ('CISCO');
+INSERT INTO Servicios (vNombre) VALUES ('Afore');
+INSERT INTO Dueños (vNombre) VALUES ('Jose Garcia');
 INSERT INTO Equipos (
   iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
   iAmbiente, iTipo, vCluster, vChassis, vBahia, 
