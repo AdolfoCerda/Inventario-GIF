@@ -306,7 +306,7 @@ import axios from 'axios';
           this.asset.Memoria = assetData[0][15];
           //this.asset.Servicio = assetData[0][16];
           const fechaInicioSoporte = new Date(assetData[0][17]);
-          this.asset.FechaEstatus = fechaInicioSoporte.toISOString().split('T')[0];
+          this.asset.FechaInicioSoporte = fechaInicioSoporte.toISOString().split('T')[0];
           const fechaFinSoporte = new Date(assetData[0][18]);
           this.asset.FechaFinSoporte = fechaFinSoporte.toISOString().split('T')[0];
           const fechaFinVida = new Date(assetData[0][19]);
