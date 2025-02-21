@@ -1,210 +1,212 @@
 <template>
-    <header class="header">
-        <div class="logo-container">
-          <img src="../assets/images/images/logo-coppel-coppel.png" alt="Logo" class="logo" />
-          <span class="company-label">Coppel</span>
-        </div>
-        <div class="user-info">
-          <span class="username">{{ username }}</span>
-          <i class="user-icon">👤</i>
-        </div>
-      </header>
+  <header class="header">
+    <div class="logo-container">
+      <img src="../assets/images/images/logo-coppel-coppel.png" alt="Logo" class="logo" />
+      <span class="company-label">Coppel</span>
+    </div>
+    <div class="user-info">
+      <span class="username">{{ username }}</span>
+      <i class="user-icon">👤</i>
+    </div>
+  </header>
 
-      <div class="add-asset">
+  <div class="add-asset">
     <h1>Agregar/Editar Activo</h1>
     <form @submit.prevent="handleSubmit">
-      <!-- Campo: Número de Serie -->
-      <div class="form-group">
-        <label for="serialNumber">Número de Serie:</label>
-        <input
-          type="text"
-          id="serialNumber"
-          v-model="asset.Serial"
-          @blur="buscarActivo"
-          required
-        />
+      <!-- Sección 1: Datos Generales -->
+      <div class="form-section">
+        <h2>Datos Generales</h2>
+        <div class="form-columns">
+          <!-- Fila 1 -->
+          <div class="form-row">
+            <!-- Campo: Número de Serie -->
+            <div class="form-group">
+              <label for="serialNumber">Número de Serie:</label>
+              <input type="text" id="serialNumber" v-model="asset.Serial" @blur="buscarActivo" required />
+            </div>
+
+            <!-- Campo: Sitio (Catálogo) -->
+            <div class="form-group">
+              <label for="site">Sitio:</label>
+              <select id="site" v-model="asset.Sitio" required>
+                <option v-for="option in catalogOptions.Sitios" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Campo: Nombre -->
+            <div class="form-group">
+              <label for="name">Nombre:</label>
+              <input type="text" id="name" v-model="asset.Nombre" required />
+            </div>
+
+            <!-- Campo: Encendido -->
+            <div class="form-group">
+              <label for="powerStatus">Encendido:</label>
+              <input type="text" id="powerStatus" v-model="asset.Encendido" required />
+            </div>
+          </div>
+
+          <!-- Fila 2 -->
+          <div class="form-row">
+            <!-- Campo: Estatus -->
+            <div class="form-group">
+              <label for="status">Estatus:</label>
+              <input type="text" id="status" v-model="asset.Estatus" readonly required />
+            </div>
+
+            <!-- Campo: Ambiente (Catálogo) -->
+            <div class="form-group">
+              <label for="ambiente">Ambiente:</label>
+              <select id="ambiente" v-model="asset.Ambiente" required>
+                <option v-for="option in catalogOptions.Ambientes" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Campo: Tipo (Catálogo) -->
+            <div class="form-group">
+              <label for="tipo">Tipo:</label>
+              <select id="tipo" v-model="asset.Tipo" required>
+                <option v-for="option in catalogOptions.Tipos" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Campo: Marca (Catálogo) -->
+            <div class="form-group">
+              <label for="marca">Marca:</label>
+              <select id="marca" v-model="asset.Marca" required>
+                <option v-for="option in catalogOptions.Marcas" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Campo: Sitio (Catálogo) -->
-      <div class="form-group">
-        <label for="site">Sitio:</label>
-        <select id="site" v-model="asset.Sitio" required>
-          <option v-for="option in catalogOptions.Sitios" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
+      <!-- Sección 2: Fechas -->
+      <div class="form-section">
+        <h2>Fechas</h2>
+        <div class="form-row">
+          <!-- Campo: Fecha de Estatus -->
+          <div class="form-group">
+            <label for="statusDate">Fecha de Estatus:</label>
+            <input type="date" id="statusDate" v-model="asset.FechaEstatus" required />
+          </div>
+
+          <!-- Campo: Fecha Inicio Soporte -->
+          <div class="form-group">
+            <label for="fechaInicioSoporte">Fecha de Inicio de Soporte:</label>
+            <input type="date" id="fechaInicioSoporte" v-model="asset.FechaInicioSoporte" required />
+          </div>
+
+          <!-- Campo: Fecha Fin Soporte -->
+          <div class="form-group">
+            <label for="fechaFinSoporte">Fecha de Fin de Soporte:</label>
+            <input type="date" id="fechaFinSoporte" v-model="asset.FechaFinSoporte" required />
+          </div>
+
+          <!-- Campo: Fecha Fin Vida -->
+          <div class="form-group">
+            <label for="fechaFinVida">Fecha de Vida:</label>
+            <input type="date" id="fechaFinVida" v-model="asset.FechaFinVida" required />
+          </div>
+        </div>
       </div>
 
-      <!-- Campo: Nombre -->
-      <div class="form-group">
-        <label for="name">Nombre:</label>
-        <input type="text" id="name" v-model="asset.Nombre" required />
-      </div>
+      <!-- Sección 3: Características de los Equipos -->
+      <div class="form-section">
+        <h2>Características de los Equipos</h2>
+        <div class="form-row">
+          <!-- Campo: Cluster -->
+          <div class="form-group">
+            <label for="cluster">Cluster:</label>
+            <input type="text" id="cluster" v-model="asset.Cluster" required />
+          </div>
 
-      <!-- Campo: Encendido -->
-      <div class="form-group">
-        <label for="powerStatus">Encendido:</label>
-        <input type="text" id="powerStatus" v-model="asset.Encendido" required />
-      </div>
+          <!-- Campo: Chassis -->
+          <div class="form-group">
+            <label for="chassis">Chassis:</label>
+            <input type="text" id="chassis" v-model="asset.Chassis" required />
+          </div>
 
-      <!-- Campo: Estatus -->
-      <div class="form-group">
-        <label for="status">Estatus:</label>
-        <input type="text" id="status" v-model="asset.Estatus" required />
-      </div>
+          <!-- Campo: Bahia -->
+          <div class="form-group">
+            <label for="bahia">Bahia:</label>
+            <input type="text" id="bahia" v-model="asset.Bahia" required />
+          </div>
 
-      <!-- Campo: Fecha de Estatus -->
-      <div class="form-group">
-        <label for="statusDate">Fecha de Estatus:</label>
-        <input
-          type="date"
-          id="supportStartDate"
-          v-model="asset.FechaEstatus"
-          required
-        />
-      </div>
+          <!-- Campo: Modelo -->
+          <div class="form-group">
+            <label for="modelo">Modelo:</label>
+            <input type="text" id="modelo" v-model="asset.Modelo" required />
+          </div>
+        </div>
 
-      <!-- Campo: Ambiente (Catálogo) -->
-      <div class="form-group">
-        <label for="ambiente">Ambiente:</label>
-        <select id="ambiente" v-model="asset.Ambiente" required>
-          <option v-for="option in catalogOptions.Ambientes" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
+        <div class="form-row">
+          <!-- Campo: Nucleos -->
+          <div class="form-group">
+            <label for="nucleos">Nucleos:</label>
+            <input type="text" id="nucleos" v-model="asset.Nucleos" required />
+          </div>
 
-      <!-- Campo: Tipo (Catálogo) -->
-      <div class="form-group">
-        <label for="tipo">Tipo:</label>
-        <select id="tipo" v-model="asset.Tipo" required>
-          <option v-for="option in catalogOptions.Tipos" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
+          <!-- Campo: Memoria -->
+          <div class="form-group">
+            <label for="memoria">Memoria:</label>
+            <input type="text" id="memoria" v-model="asset.Memoria" required />
+          </div>
 
-      <!-- Campo: Cluster -->
-      <div class="form-group">
-        <label for="cluster">Cluster:</label>
-        <input type="text" id="cluster" v-model="asset.Cluster" required />
-      </div>
+          <!-- Campo: Servicios (Catálogo) -->
+          <div class="form-group">
+            <label for="servicios">Servicio:</label>
+            <select id="servicios" v-model="asset.Servicio" required>
+              <option v-for="option in catalogOptions.Servicios" :key="option" :value="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
 
-      <!-- Campo: Chassis -->
-      <div class="form-group">
-        <label for="chassis">Chassis:</label>
-        <input type="text" id="chassis" v-model="asset.Chassis" required />
-      </div>
+          <!-- Campo: IP Red -->
+          <div class="form-group">
+            <label for="ipRed">IP Red:</label>
+            <input type="text" id="ipRed" v-model="asset.IpRed" required />
+          </div>
+        </div>
 
-      <!-- Campo: Bahia -->
-      <div class="form-group">
-        <label for="bahia">Bahia:</label>
-        <input type="text" id="bahia" v-model="asset.Bahia" required />
-      </div>
+        <div class="form-row">
+          <!-- Campo: IP ILO -->
+          <div class="form-group">
+            <label for="ipILO">IP ILO:</label>
+            <input type="text" id="ipILO" v-model="asset.IpILO" required />
+          </div>
 
-      <!-- Campo: Marca (Catálogo) -->
-      <div class="form-group">
-        <label for="marca">Marca:</label>
-        <select id="marca" v-model="asset.Marca" required>
-          <option v-for="option in catalogOptions.Marcas" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
+          <!-- Campo: Dueño (Catálogo) -->
+          <div class="form-group">
+            <label for="dueño">Dueño:</label>
+            <select id="dueño" v-model="asset.Dueño" required>
+              <option v-for="option in catalogOptions.Dueños" :key="option" :value="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
 
-      <!-- Campo: Modelo -->
-      <div class="form-group">
-        <label for="modelo">Modelo:</label>
-        <input type="text" id="modelo" v-model="asset.Modelo" required />
-      </div>
-
-      <!-- Campo: Nucleos -->
-      <div class="form-group">
-        <label for="nucleos">Nucleos:</label>
-        <input type="text" id="nucleos" v-model="asset.Nucleos" required />
-      </div>
-
-      <!-- Campo: Memoria -->
-      <div class="form-group">
-        <label for="memoria">Memoria:</label>
-        <input type="text" id="memoria" v-model="asset.Memoria" required />
-      </div>
-
-      <!-- Campo: Servicios (Catálogo) -->
-      <div class="form-group">
-        <label for="servicios">Servicio:</label>
-        <select id="servicios" v-model="asset.Servicio" required>
-          <option v-for="option in catalogOptions.Servicios" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Campo: Fecha Inicio Soporte -->
-      <div class="form-group">
-        <label for="fechaInicioSoporte">Fecha de Inicio de Soporte:</label>
-        <input
-          type="date"
-          id="fechaInicioSoporte"
-          v-model="asset.FechaInicioSoporte"
-          required
-        />
-      </div>
-
-      <!-- Campo: Fecha Fin Soporte -->
-      <div class="form-group">
-        <label for="fechaFinSoporte">Fecha de Fin de Soporte:</label>
-        <input
-          type="date"
-          id="fechaFinSoporte"
-          v-model="asset.FechaFinSoporte"
-          required
-        />
-      </div>
-
-      <!-- Campo: Fecha Fin Vida -->
-      <div class="form-group">
-        <label for="fechaFinVida">Fecha de Vida:</label>
-        <input
-          type="date"
-          id="fechaFinVida"
-          v-model="asset.FechaFinVida"
-          required
-        />
-      </div>
-
-      <!-- Campo: IP Red -->
-      <div class="form-group">
-        <label for="ipRed">IP Red:</label>
-        <input type="text" id="ipRed" v-model="asset.IpRed" required />
-      </div>
-
-      <!-- Campo: IP ILO -->
-      <div class="form-group">
-        <label for="ipILO">IP ILO:</label>
-        <input type="text" id="ipILO" v-model="asset.IpILO" required />
-      </div>
-
-      <!-- Campo: Dueño (Catálogo) -->
-      <div class="form-group">
-        <label for="dueño">Dueño:</label>
-        <select id="dueño" v-model="asset.Dueño" required>
-          <option v-for="option in catalogOptions.Dueños" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Campo: HDD -->
-      <div class="form-group">
-        <label for="hdd">HDD (GB):</label>
-        <input type="text" id="hdd" v-model="asset.HDD" required />
+          <!-- Campo: HDD -->
+          <div class="form-group">
+            <label for="hdd">HDD (GB):</label>
+            <input type="text" id="hdd" v-model="asset.HDD" required />
+          </div>
+        </div>
       </div>
 
       <!-- Botones de Acción -->
       <div class="form-actions">
         <button type="button" @click="deleteAsset" :disabled="!asset.id">Eliminar Activo</button>
-        <button type="submit">{{ asset.id ? 'Actualizar' : 'Agregar' }} Activo</button>
+        <button type="submit">{{ asset.Serial ? 'Actualizar' : 'Agregar' }} Activo</button>
       </div>
     </form>
   </div>
@@ -399,40 +401,40 @@ import axios from 'axios';
 </script>
 
 <style>
-    .header {
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: #ffe94b;
     padding: 10px 20px;
   }
-  
+
   .logo-container {
     display: flex;
     align-items: center;
   }
-  
+
   .logo {
     width: 50px;
     height: 50px;
     margin-right: 10px;
   }
-  
+
   .company-label {
     font-size: 24px;
     font-weight: bold;
   }
-  
+
   .user-info {
     display: flex;
     align-items: center;
   }
-  
+
   .username {
     margin-right: 10px;
     font-size: 18px;
   }
-  
+
   .user-icon {
     font-size: 24px;
   }
@@ -441,13 +443,36 @@ import axios from 'axios';
     padding: 20px;
   }
 
+  .form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .form-section h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas */
+    gap: 20px; /* Espacio entre columnas */
+    margin-bottom: 20px; /* Espacio entre filas */
+  }
+
   .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 0; /* Elimina el margen inferior */
   }
 
   label {
     display: block;
     margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
   }
 
   input,
@@ -455,15 +480,32 @@ import axios from 'axios';
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  input[readonly] {
+    background-color: #f0f0f0; /* Fondo gris claro para campos de solo lectura */
+    cursor: not-allowed; /* Cambia el cursor para indicar que no es editable */
   }
 
   .form-actions {
     margin-top: 20px;
+    text-align: right; /* Alinea los botones a la derecha */
   }
 
   button {
     margin-right: 10px;
     padding: 10px 20px;
     cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 </style>
