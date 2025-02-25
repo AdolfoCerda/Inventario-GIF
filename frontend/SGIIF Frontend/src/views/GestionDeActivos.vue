@@ -41,10 +41,14 @@
               <input type="text" id="name" v-model="asset.Nombre" required />
             </div>
 
-            <!-- Campo: Encendido -->
-            <div class="form-group">
+            <!-- Campo: Encendido (Catálogo) -->
+          <div class="form-group">
               <label for="powerStatus">Encendido:</label>
-              <input type="text" id="powerStatus" v-model="asset.Encendido" required />
+              <select id="powerStatus" v-model="asset.Encendido" required>
+                <option v-for="option in catalogOptions.Encendido" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
             </div>
           </div>
 
@@ -205,8 +209,8 @@
 
       <!-- Botones de Acción -->
       <div class="form-actions">
-        <button type="button" @click="deleteAsset" :disabled="!asset.id">Eliminar Activo</button>
-        <button type="submit">{{ asset.Serial ? 'Actualizar' : 'Agregar' }} Activo</button>
+        <button type="button" style="background-color: red;" @click="deleteAsset" >Eliminar Activo</button>
+        <button type="submit" @click="submit">{{ existe ? 'Actualizar' : 'Agregar' }} Activo</button>
       </div>
     </form>
   </div>
@@ -218,6 +222,7 @@ import axios from 'axios';
    export default {
     data() {
       return {
+        existe: false,
         username: 'Nombre de Usuario', // Aquí puedes obtener el nombre del usuario que inició sesión
         asset: {
         Id: null,
@@ -247,6 +252,7 @@ import axios from 'axios';
         // Agrega aquí el resto de los campos
       },
       catalogOptions: {
+        Encendido: ["Si", "No"],
         Sitios: [],
         Ambientes: [],
         Tipos: [],
@@ -294,6 +300,11 @@ import axios from 'axios';
           //this.asset.Sitio = assetData[0][1];
           this.asset.Nombre = assetData[0][2];
           this.asset.Encendido = assetData[0][3];
+          if (assetData[0][3]) {
+            this.asset.Encendido = "Si";
+          } else {
+            this.asset.Encendido = "No";
+          }
           this.asset.Estatus = assetData[0][4];
           const fechaEstatus = new Date(assetData[0][5]);
           this.asset.FechaEstatus = fechaEstatus.toISOString().split('T')[0];
@@ -325,14 +336,88 @@ import axios from 'axios';
           this.asset.Servicio = assetData[0][28];
           this.asset.Dueño = assetData[0][29];
 
+          this.existe = true;
+
         } else {
           console.log("No se encontró el activo");
+          this.existe = false;
         }
       }
     } catch (error) {
       console.error("Error al obtener el activo:", error);
     }
-  }
+  },
+  async deleteAsset() {
+    try {
+      if (this.asset.Serial) {
+        const response = await axios.put('http://localhost:5000/api/activo/eliminar', {
+          serial: this.asset.Serial
+        });
+
+        const assetData = response.data;
+        console.log(assetData);
+
+        if (assetData && assetData.length > 0) {
+          // Obtiene los campos del activo (0 es la primer y unica fila)
+          console.log("Se eliminó el activo");
+        } else {
+          console.log("No se encontró el activo a eliminar");
+        }
+      }
+    } catch (error) {
+      console.error("Error al eliminar el activo:", error);
+    }
+  },
+  async submit() {
+    try {
+      const data = {
+        serial: this.asset.Serial,
+        nombre: this.asset.Nombre,
+        encendido: this.asset.Encendido,
+        cluster: this.asset.Cluster,
+        chassis: this.asset.Chassis,
+        bahia: this.asset.Bahia,
+        modelo: this.asset.Modelo,
+        nucleos: this.asset.Nucleos,
+        memoria: this.asset.Memoria,
+        fechaInicioSoporte: this.asset.FechaInicioSoporte,
+        fechaFinSoporte: this.asset.FechaFinSoporte,
+        fechaFinVida: this.asset.FechaFinVida,
+        ipRed: this.asset.IpRed,
+        ipILO: this.asset.IpILO,
+        hdd: this.asset.HDD,
+        sitio: this.asset.Sitio,
+        ambiente: this.asset.Ambiente,
+        tipo: this.asset.Tipo,
+        marca: this.asset.Marca,
+        servicio: this.asset.Servicio,
+        dueño: this.asset.Dueño
+      };
+
+      let url = '';
+      let message = '';
+      
+      if (this.existe) {
+        url = 'http://localhost:5000/api/activos/actualizar';
+        message = 'Activo actualizado correctamente';
+      } else {
+        url = 'http://localhost:5000/api/activos/agregar';
+        message = 'Activo agregado correctamente';
+      }
+
+      const response = await axios.post(url, data);
+
+      if (response.data.status === "ok") {
+        alert(message);
+      } else {
+        alert(response.data.mensaje);
+      }
+
+    } catch (error) {
+      console.error('Error al procesar el activo:', error);
+      alert('Error al procesar el activo');
+    }
+  },
 /*
       // Maneja el envío del formulario
       async handleSubmit() {

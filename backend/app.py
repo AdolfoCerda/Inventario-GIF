@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from psycopg2 import connect, sql
+from datetime import date
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})  # Habilitar CORS para todas las rutas bajo /api
@@ -114,5 +115,198 @@ def obtener_opciones(tabla):
         return jsonify({"error": "Error interno del servidor", "status": "error"}), 500
         return jsonify({"error": str(e), "status": "error"}), 500
 
+# "Eliminar" activo, es decir cambiar estatus a inactivo y actualizar fecha de estatus  
+@app.put('/api/activo/eliminar')
+def eliminar_activo():
+    datos = request.get_json()
+    serial = datos.get("serial")
+
+    if not serial:
+        return jsonify({"mensaje": "Serial requerido", "status": "error"}), 400
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Actualizar los campos vEstatus y dFechaEstatus
+        query = """
+            UPDATE admin.equipos
+            SET vEstatus = 'Inactivo', dFechaEstatus = %s
+            WHERE vSerial = %s
+        """
+        cursor.execute(query, (date.today(), serial))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        if cursor.rowcount > 0:
+            return jsonify({"mensaje": "Activo eliminado correctamente", "status": "ok"}), 200
+        else:
+            return jsonify({"mensaje": "Activo no encontrado", "status": "error"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "error"}), 500
+    
+@app.post('/api/activos/agregar')
+def agregar_activo():
+    datos = request.get_json()
+    
+    # Extract data from request
+    vSerial = datos.get("serial")
+    vNombre = datos.get("nombre")
+    if datos.get("encendido") == "Si":
+        bEncendido = True
+    else:
+        bEncendido = False
+    dFechaEstatus = date.today()
+    vCluster = datos.get("cluster")
+    vChassis = datos.get("chassis")
+    vBahia = datos.get("bahia")
+    vModelo = datos.get("modelo")
+    iNucleos = datos.get("nucleos")
+    iMemoria = datos.get("memoria")
+    dFechaInicioSoporte = datos.get("fechaInicioSoporte")
+    dFechaFinSoporte = datos.get("fechaFinSoporte")
+    dFechaFinVida = datos.get("fechaFinVida")
+    vIpRed = datos.get("ipRed")
+    vIpILO = datos.get("ipILO")
+    iHDD = datos.get("hdd")
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Function to get the ID from a name in a catalog table
+        def get_catalog_id(table, name):
+            query = sql.SQL("SELECT iId FROM admin.{} WHERE vNombre = %s").format(sql.Identifier(table))
+            cursor.execute(query, (name,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+
+        iSitio = get_catalog_id('sitios', datos.get("sitio"))
+        iAmbiente = get_catalog_id('ambientes', datos.get("ambiente"))
+        iTipo = get_catalog_id('tipos', datos.get("tipo"))
+        iMarca = get_catalog_id('marcas', datos.get("marca"))
+        iServicio = get_catalog_id('servicios', datos.get("servicio"))
+        iDueño = get_catalog_id('dueños', datos.get("dueño"))
+
+        # Check that all IDs have been successfully retrieved
+        if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño):
+            return jsonify({"mensaje": "Datos de catálogo inválidos", "status": "error"}), 400
+
+        # Insert new record into Equipos
+        query = """
+            INSERT INTO admin.equipos (
+                iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
+                iAmbiente, iTipo, vCluster, vChassis, vBahia, 
+                iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+                iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+                vIpRed, vIpILO, iDueño, iHDD
+            ) VALUES (
+                %s, %s, %s, 'Activo', %s, 
+                %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s
+            )
+        """
+        cursor.execute(query, (
+            iSitio, vNombre, bEncendido, dFechaEstatus, 
+            iAmbiente, iTipo, vCluster, vChassis, vBahia, 
+            iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+            iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+            vIpRed, vIpILO, iDueño, iHDD
+        ))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"mensaje": "Equipo agregado correctamente", "status": "ok"}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "error"}), 500
+    
+@app.post('/api/activos/actualizar')
+def actualizar_activo():
+    datos = request.get_json()
+    
+    # Extract data from request
+    vSerial = datos.get("serial")
+    vNombre = datos.get("nombre")
+    if datos.get("encendido") == "Si":
+        bEncendido = True
+    else:
+        bEncendido = False
+    vCluster = datos.get("cluster")
+    vChassis = datos.get("chassis")
+    vBahia = datos.get("bahia")
+    vModelo = datos.get("modelo")
+    iNucleos = datos.get("nucleos")
+    iMemoria = datos.get("memoria")
+    dFechaInicioSoporte = datos.get("fechaInicioSoporte")
+    dFechaFinSoporte = datos.get("fechaFinSoporte")
+    dFechaFinVida = datos.get("fechaFinVida")
+    vIpRed = datos.get("ipRed")
+    vIpILO = datos.get("ipILO")
+    iHDD = datos.get("hdd")
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Function to get the ID from a name in a catalog table
+        def get_catalog_id(table, name):
+            query = sql.SQL("SELECT iId FROM admin.{} WHERE vNombre = %s").format(sql.Identifier(table))
+            cursor.execute(query, (name,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+
+        iSitio = get_catalog_id('sitios', datos.get("sitio"))
+        iAmbiente = get_catalog_id('ambientes', datos.get("ambiente"))
+        iTipo = get_catalog_id('tipos', datos.get("tipo"))
+        iMarca = get_catalog_id('marcas', datos.get("marca"))
+        iServicio = get_catalog_id('servicios', datos.get("servicio"))
+        iDueño = get_catalog_id('dueños', datos.get("dueño"))
+
+        # Check that all IDs have been successfully retrieved
+        if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño):
+            return jsonify({"mensaje": "Datos de catálogo inválidos", "status": "error"}), 400
+
+        # Update the existing record in Equipos
+        query = """
+            UPDATE admin.equipos SET
+                iSitio = %s, vNombre = %s, bEncendido = %s, 
+                iAmbiente = %s, iTipo = %s, vCluster = %s, 
+                vChassis = %s, vBahia = %s, iMarca = %s, 
+                vModelo = %s, iNucleos = %s, iMemoria = %s, 
+                iServicio = %s, dFechaInicioSoporte = %s, 
+                dFechaFinSoporte = %s, dFechaFinVida = %s, 
+                vIpRed = %s, vIpILO = %s, iDueño = %s, iHDD = %s
+            WHERE vSerial = %s
+        """
+        cursor.execute(query, (
+            iSitio, vNombre, bEncendido, 
+            iAmbiente, iTipo, vCluster, 
+            vChassis, vBahia, iMarca, 
+            vModelo, iNucleos, iMemoria, 
+            iServicio, dFechaInicioSoporte, 
+            dFechaFinSoporte, dFechaFinVida, 
+            vIpRed, vIpILO, iDueño, iHDD, vSerial
+        ))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        if cursor.rowcount > 0:
+            return jsonify({"mensaje": "Equipo actualizado correctamente", "status": "ok"}), 200
+        else:
+            return jsonify({"mensaje": "Equipo no encontrado para actualizar", "status": "error"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "error"}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True)
