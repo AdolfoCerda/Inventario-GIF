@@ -209,7 +209,7 @@
 
       <!-- Botones de Acción -->
       <div class="form-actions">
-        <button type="button" @click="deleteAsset" :disabled="!existe" >Eliminar Activo</button>
+        <button type="button" @click="deleteAsset" :disabled="!activo" >Eliminar Activo</button>
         <button type="submit" @click="submit">{{ existe ? 'Actualizar' : 'Agregar' }} Activo</button>
       </div>
     </form>
@@ -224,6 +224,7 @@ import axios from 'axios';
     data() {
       return {
         existe: false,
+        activo: false,
         username: 'Nombre de Usuario', // Aquí puedes obtener el nombre del usuario que inició sesión
         asset: {
         Id: null,
@@ -338,10 +339,14 @@ import axios from 'axios';
             this.asset.Dueño = assetData[0][29];
 
             this.existe = true;
+            if (this.asset.Estatus === "Activo") {
+              this.activo = true;
+            }
 
           } else {
             console.log("No se encontró el activo");
             this.existe = false;
+            this.activo = false;
           }
         }
       } catch (error) {
