@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="logo-container">
-      <img src="../assets/images/images/logo-coppel-coppel.png" alt="Logo" class="logo" />
+      <img src="../assets/images/logo-coppel.png" alt="Logo" class="logo" />
       <span class="company-label">Coppel</span>
     </div>
     <div class="user-info">
@@ -209,11 +209,12 @@
 
       <!-- Botones de Acción -->
       <div class="form-actions">
-        <button type="button" style="background-color: red;" @click="deleteAsset" >Eliminar Activo</button>
+        <button type="button" @click="deleteAsset" :disabled="!existe" >Eliminar Activo</button>
         <button type="submit" @click="submit">{{ existe ? 'Actualizar' : 'Agregar' }} Activo</button>
       </div>
     </form>
   </div>
+
 </template>
 
 <script>
@@ -272,81 +273,92 @@ import axios from 'axios';
       await this.loadCatalogOptions('Dueños', 'Dueños');
     },
     methods: {
-        async loadCatalogOptions(tabla, key) {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/options/${tabla}`);
-        this.catalogOptions[key] = response.data;
-        console.log(`Opciones de ${tabla} cargadas correctamente`);
-        console.log(response.data);
-      } catch (error) {
-        console.error(`Error al cargar opciones de ${tabla}:`, error);
-      }
-    },
+      // Método para mostrar el modal con un mensaje
+      showNotification(message) {
+        this.modalMessage = message;
+        this.showModal = true;
+      },
+
+      // Método para cerrar el modal
+      closeModal() {
+        this.showModal = false;
+      },
+
+      async loadCatalogOptions(tabla, key) {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/options/${tabla}`);
+          this.catalogOptions[key] = response.data;
+          console.log(`Opciones de ${tabla} cargadas correctamente`);
+          console.log(response.data);
+        } catch (error) {
+          console.error(`Error al cargar opciones de ${tabla}:`, error);
+        }
+      },
       // Verifica si el activo ya existe
       async buscarActivo() {
-    try {
-      if (this.asset.Serial) {
-        const response = await axios.post('http://localhost:5000/api/activo', {
-          serial: this.asset.Serial
-        });
+      try {
+        if (this.asset.Serial) {
+          const response = await axios.post('http://localhost:5000/api/activo', {
+            serial: this.asset.Serial
+          });
 
-        const assetData = response.data;
-        console.log(assetData);
+          const assetData = response.data;
+          console.log(assetData);
 
-        if (assetData && assetData.length > 0) {
-          // Obtiene los campos del activo (0 es la primer y unica fila)
+          if (assetData && assetData.length > 0) {
+            // Obtiene los campos del activo (0 es la primer y unica fila)
 
-          this.asset.Id = assetData[0][0];
-          //this.asset.Sitio = assetData[0][1];
-          this.asset.Nombre = assetData[0][2];
-          this.asset.Encendido = assetData[0][3];
-          if (assetData[0][3]) {
-            this.asset.Encendido = "Si";
+            this.asset.Id = assetData[0][0];
+            //this.asset.Sitio = assetData[0][1];
+            this.asset.Nombre = assetData[0][2];
+            this.asset.Encendido = assetData[0][3];
+            if (assetData[0][3]) {
+              this.asset.Encendido = "Si";
+            } else {
+              this.asset.Encendido = "No";
+            }
+            this.asset.Estatus = assetData[0][4];
+            const fechaEstatus = new Date(assetData[0][5]);
+            this.asset.FechaEstatus = fechaEstatus.toISOString().split('T')[0];
+            //this.asset.Ambiente = assetData[0][6];
+            //this.asset.Tipo = assetData[0][7];
+            this.asset.Cluster = assetData[0][8];
+            this.asset.Chassis = assetData[0][9];
+            this.asset.Bahia = assetData[0][10];
+            //this.asset.Marca = assetData[0][11];
+            this.asset.Modelo = assetData[0][12];
+            this.asset.Nucleos = assetData[0][14];
+            this.asset.Memoria = assetData[0][15];
+            //this.asset.Servicio = assetData[0][16];
+            const fechaInicioSoporte = new Date(assetData[0][17]);
+            this.asset.FechaInicioSoporte = fechaInicioSoporte.toISOString().split('T')[0];
+            const fechaFinSoporte = new Date(assetData[0][18]);
+            this.asset.FechaFinSoporte = fechaFinSoporte.toISOString().split('T')[0];
+            const fechaFinVida = new Date(assetData[0][19]);
+            this.asset.FechaFinVida = fechaFinVida.toISOString().split('T')[0];
+            this.asset.IpRed = assetData[0][20];
+            this.asset.IpILO = assetData[0][21];
+            //this.asset.Dueño = assetData[0][22];
+            this.asset.HDD = assetData[0][23];
+            
+            this.asset.Sitio = assetData[0][24];
+            this.asset.Ambiente = assetData[0][25];
+            this.asset.Tipo = assetData[0][26];
+            this.asset.Marca = assetData[0][27];
+            this.asset.Servicio = assetData[0][28];
+            this.asset.Dueño = assetData[0][29];
+
+            this.existe = true;
+
           } else {
-            this.asset.Encendido = "No";
+            console.log("No se encontró el activo");
+            this.existe = false;
           }
-          this.asset.Estatus = assetData[0][4];
-          const fechaEstatus = new Date(assetData[0][5]);
-          this.asset.FechaEstatus = fechaEstatus.toISOString().split('T')[0];
-          //this.asset.Ambiente = assetData[0][6];
-          //this.asset.Tipo = assetData[0][7];
-          this.asset.Cluster = assetData[0][8];
-          this.asset.Chassis = assetData[0][9];
-          this.asset.Bahia = assetData[0][10];
-          //this.asset.Marca = assetData[0][11];
-          this.asset.Modelo = assetData[0][12];
-          this.asset.Nucleos = assetData[0][14];
-          this.asset.Memoria = assetData[0][15];
-          //this.asset.Servicio = assetData[0][16];
-          const fechaInicioSoporte = new Date(assetData[0][17]);
-          this.asset.FechaInicioSoporte = fechaInicioSoporte.toISOString().split('T')[0];
-          const fechaFinSoporte = new Date(assetData[0][18]);
-          this.asset.FechaFinSoporte = fechaFinSoporte.toISOString().split('T')[0];
-          const fechaFinVida = new Date(assetData[0][19]);
-          this.asset.FechaFinVida = fechaFinVida.toISOString().split('T')[0];
-          this.asset.IpRed = assetData[0][20];
-          this.asset.IpILO = assetData[0][21];
-          //this.asset.Dueño = assetData[0][22];
-          this.asset.HDD = assetData[0][23];
-          
-          this.asset.Sitio = assetData[0][24];
-          this.asset.Ambiente = assetData[0][25];
-          this.asset.Tipo = assetData[0][26];
-          this.asset.Marca = assetData[0][27];
-          this.asset.Servicio = assetData[0][28];
-          this.asset.Dueño = assetData[0][29];
-
-          this.existe = true;
-
-        } else {
-          console.log("No se encontró el activo");
-          this.existe = false;
         }
+      } catch (error) {
+        console.error("Error al obtener el activo:", error);
       }
-    } catch (error) {
-      console.error("Error al obtener el activo:", error);
-    }
-  },
+    },
   async deleteAsset() {
     try {
       if (this.asset.Serial) {
@@ -357,11 +369,14 @@ import axios from 'axios';
         const assetData = response.data;
         console.log(assetData);
 
-        if (assetData && assetData.length > 0) {
+        if (response.data.status === "ok") {
           // Obtiene los campos del activo (0 es la primer y unica fila)
           console.log("Se eliminó el activo");
+          alert("Activo eliminado correctamente");
+          this.existe = false;
         } else {
           console.log("No se encontró el activo a eliminar");
+          alert("No se encontró el activo a eliminar");
         }
       }
     } catch (error) {
@@ -528,6 +543,12 @@ import axios from 'axios';
     padding: 20px;
   }
 
+  .form-actions button:disabled {
+    background-color: #ccc; /* Fondo gris */
+    color: #666; /* Texto gris oscuro */
+    cursor: not-allowed; /* Cambia el cursor para indicar que no es clickeable */
+  }
+
   .form-section {
     margin-bottom: 30px;
     padding: 20px;
@@ -592,5 +613,74 @@ import axios from 'axios';
   button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+  }
+
+  .form-actions button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: background-color 0.3s ease; /* Transición suave */
+  }
+
+  /* Estilo para el botón de Eliminar cuando está habilitado */
+  .form-actions button[type="button"]:not(:disabled) {
+    background-color: #ff4444; /* Fondo rojo */
+    color: white; /* Texto blanco */
+  }
+
+  /* Estilo para el botón de Eliminar cuando está deshabilitado */
+  .form-actions button[type="button"]:disabled {
+    background-color: #ccc; /* Fondo gris */
+    color: #666; /* Texto gris oscuro */
+    cursor: not-allowed; /* Cambia el cursor para indicar que no es clickeable */
+  }
+
+  /* Estilo para el botón de Agregar/Actualizar (azul) */
+  .form-actions button[type="submit"] {
+    background-color: #007bff; /* Fondo azul */
+    color: white; /* Texto blanco */
+  }
+
+  /* Estilos para el modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que el modal esté por encima de todo */
+  }
+
+  .modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .modal p {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+
+  .modal button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .modal button:hover {
+    background-color: #0056b3;
   }
 </style>
