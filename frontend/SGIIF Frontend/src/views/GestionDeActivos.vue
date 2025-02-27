@@ -273,17 +273,6 @@ import axios from 'axios';
       await this.loadCatalogOptions('Dueños', 'Dueños');
     },
     methods: {
-      // Método para mostrar el modal con un mensaje
-      showNotification(message) {
-        this.modalMessage = message;
-        this.showModal = true;
-      },
-
-      // Método para cerrar el modal
-      closeModal() {
-        this.showModal = false;
-      },
-
       async loadCatalogOptions(tabla, key) {
         try {
           const response = await axios.get(`http://localhost:5000/api/options/${tabla}`);
