@@ -3,6 +3,7 @@ import Login from '../views/Login.vue';
 import HomeView from '../views/HomeView.vue'; // Importa el componente HomeView
 import Menu from '../views/Menu.vue';
 import GDA from '../views/GestionDeActivos.vue';
+import CM from '../views/CargaMasiva.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/GestionDeActivos',
       name: 'GestionDeActivos',
       component: GDA, // Ruta para Gestion de Activos
+    },
+    {
+      path: '/CargaMasiva',
+      name: 'CargaMasiva',
+      component: CM, // Ruta para Gestion de Activos
     },
     {
       path: '/about',

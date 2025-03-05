@@ -209,6 +209,7 @@
 
       <!-- Botones de Acción -->
       <div class="form-actions">
+        <button type="button" class="massive-load-button" @click="redirectToMassiveLoad">Carga Masiva</button>
         <button type="button" @click="deleteAsset" :disabled="!activo" >Eliminar Activo</button>
         <button type="submit" @click="submit">{{ existe ? 'Actualizar' : 'Agregar' }} Activo</button>
       </div>
@@ -427,6 +428,9 @@ import axios from 'axios';
       alert('Error al procesar el activo');
     }
   },
+  async redirectToMassiveLoad() {
+    this.$router.push('/CargaMasiva');
+  }
 /*
       // Maneja el envío del formulario
       async handleSubmit() {
@@ -590,8 +594,11 @@ import axios from 'axios';
   }
 
   .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     margin-top: 20px;
-    text-align: right; /* Alinea los botones a la derecha */
+    position: relative;
   }
 
   button {
@@ -610,13 +617,13 @@ import axios from 'axios';
   }
 
   .form-actions button {
-    margin-right: 10px;
     padding: 10px 20px;
     cursor: pointer;
     border: none;
     border-radius: 4px;
     font-size: 16px;
-    transition: background-color 0.3s ease; /* Transición suave */
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
   }
 
   /* Estilo para el botón de Eliminar cuando está habilitado */
@@ -676,5 +683,22 @@ import axios from 'axios';
 
   .modal button:hover {
     background-color: #0056b3;
+  }
+
+  /* Aumentamos la especificidad */
+  .form-actions .massive-load-button {
+    position: absolute;
+    left: 0;
+    padding: 10px 20px;
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .form-actions .massive-load-button:hover {
+    background-color: #218838; /* Verde oscuro al pasar el mouse */
   }
 </style>
