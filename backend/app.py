@@ -2,9 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from psycopg2 import connect, sql
 from datetime import date
+import os
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})  # Habilitar CORS para todas las rutas bajo /api
+app.config['UPLOAD_FOLDER'] = 'uploads/'  # Ruta para archivo temporal
 
 # Variables para conexión a la base de datos
 host = 'localhost'
@@ -307,6 +310,130 @@ def actualizar_activo():
 
     except Exception as e:
         return jsonify({"error": str(e), "status": "error"}), 500
+
+# Carga masiva de activos
+@app.post('/api/upload')
+def upload_file():
+    print("llamada a upload")
+    file = request.files['file']
+
+    # Guardar el archivo temporalmente
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(file_path)
+
+    try:
+        # Leer el archivo Excel
+        dataframe = pd.read_excel(file_path)
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Function to get the ID from a name in a catalog table
+        def get_catalog_id(table, name):
+            query = sql.SQL("SELECT iId FROM admin.{} WHERE vNombre = %s").format(sql.Identifier(table))
+            cursor.execute(query, (name,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+
+        # Iterar sobre las filas del DataFrame
+        for index, row in dataframe.iterrows():
+
+            # Si el campo 'sitio' (primera columna) está vacío, detener el proceso
+            if pd.isna(row.iloc[1]):
+                break
+
+            # Mapear y validar los datos
+            sitio = get_catalog_id('sitios', row.iloc[1])
+            ambiente = get_catalog_id('ambientes', row.iloc[4])
+            tipo = get_catalog_id('tipos', row.iloc[5])
+            marca = get_catalog_id('marcas', row.iloc[9])
+            servicio = get_catalog_id('servicios', row.iloc[14])
+            dueño = get_catalog_id('dueños', row.iloc[20])
+
+            if None in [sitio, ambiente, tipo, marca, servicio, dueño]:
+                return jsonify({'error': 'Valor no incluido en los catálogos'}), 400
+
+            # Preparar los datos para la inserción
+            iSitio = sitio
+            print(iSitio)
+            vNombre = row.iloc[2]
+            print(vNombre)
+            bEncendido = True if row.iloc[3].strip().lower() == 'on' else False
+            print(bEncendido)
+            dFechaEstatus = date.today()
+            print(dFechaEstatus)
+            iAmbiente = ambiente
+            print(iAmbiente)
+            iTipo = tipo
+            print(iTipo)
+            vCluster = row.iloc[6]
+            print(vCluster)
+            vChassis = row.iloc[7]
+            print(vChassis)
+            vBahia = row.iloc[8]
+            print(vBahia)
+            iMarca = marca
+            print(iMarca)
+            vModelo = row.iloc[10]
+            print(vModelo)
+            vSerial = row.iloc[11]
+            print(vSerial)
+            iNucleos = row.iloc[12]
+            print(iNucleos)
+            iMemoria = row.iloc[13]
+            print(iMemoria)
+            iServicio = servicio
+            print(iServicio)
+            dFechaInicioSoporte = row.iloc[15].strftime('%Y-%m-%d')
+            print(dFechaInicioSoporte)
+            dFechaFinSoporte = row.iloc[16].strftime('%Y-%m-%d')
+            print(dFechaFinSoporte)
+            dFechaFinVida = row.iloc[17].strftime('%Y-%m-%d')
+            print(dFechaFinVida)
+            vIpRed = row.iloc[18]
+            print(vIpRed)
+            vIpILO = row.iloc[19]
+            print(vIpILO)
+            iDueño = dueño
+            print(iDueño)
+            iHDD = row.iloc[21]
+            print(iHDD)
+
+            # Insertar el equipo en la base de datos
+            query = """
+            INSERT INTO admin.equipos (
+                iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
+                iAmbiente, iTipo, vCluster, vChassis, vBahia, 
+                iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+                iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+                vIpRed, vIpILO, iDueño, iHDD
+            ) VALUES (
+                %s, %s, %s, 'Activo', %s, 
+                %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s
+            )
+            """
+            cursor.execute(query, (
+            iSitio, vNombre, bEncendido, dFechaEstatus, 
+            iAmbiente, iTipo, vCluster, vChassis, vBahia, 
+            iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+            iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+            vIpRed, vIpILO, iDueño, iHDD
+            ))
+            conn.commit()
+            
+        cursor.close()
+        conn.close()
+
+        return jsonify({'message': 'Carga masiva completada exitosamente'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        # Eliminar el archivo temporal
+        os.remove(file_path)
     
 if __name__ == '__main__':
     app.run(debug=True)

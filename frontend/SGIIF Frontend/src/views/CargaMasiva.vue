@@ -25,6 +25,8 @@
   </template>
   
   <script>
+  import axios from 'axios';
+  
   export default {
     data() {
       return {
@@ -39,15 +41,27 @@
         console.log("Archivo seleccionado:", this.file);
       },
       // Envía el archivo (simulación)
-      submitFile() {
-        if (this.file) {
-          console.log("Enviando archivo:", this.file.name);
-          // Aquí puedes agregar la lógica para enviar el archivo al servidor
-          alert(`Archivo "${this.file.name}" listo para ser enviado.`);
-        } else {
-          alert("Por favor, selecciona un archivo.");
+      async submitFile() {
+      if (this.file) {
+        const formData = new FormData();
+        formData.append('file', this.file);
+
+        try {
+          const response = await axios.post('http://localhost:5000/api/upload', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          console.log("Respuesta del servidor:", response.data);
+          alert(response.data.message || "Archivo enviado con éxito.");
+        } catch (error) {
+          console.error("Error al enviar archivo:", error);
+          alert('Error al enviar archivo.');
         }
-      },
+      } else {
+        alert("Por favor, selecciona un archivo.");
+      }
+    }
     },
   };
   </script>
