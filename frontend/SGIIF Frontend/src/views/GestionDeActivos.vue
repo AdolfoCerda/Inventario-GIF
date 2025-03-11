@@ -355,6 +355,11 @@ import axios from 'axios';
       }
     },
   async deleteAsset() {
+    // Confirmación antes de eliminar
+    if (!confirm("¿Está seguro de que desea eliminar el activo?")) {
+      return; // Si el usuario elige "No", se cancela la acción
+    }
+
     try {
       if (this.asset.Serial) {
         const response = await axios.put('http://localhost:5000/api/activo/eliminar', {
@@ -368,7 +373,7 @@ import axios from 'axios';
           // Obtiene los campos del activo (0 es la primer y unica fila)
           console.log("Se eliminó el activo");
           alert("Activo eliminado correctamente");
-          this.existe = false;
+          this.reiniciarFormulario();
         } else {
           console.log("No se encontró el activo a eliminar");
           alert("No se encontró el activo a eliminar");
@@ -379,6 +384,15 @@ import axios from 'axios';
     }
   },
   async submit() {
+    // Confirmación antes de agregar o actualizar
+    const confirmMessage = this.existe
+      ? "¿Está seguro de que desea actualizar el activo?"
+      : "¿Desea agregar el activo?";
+
+    if (!confirm(confirmMessage)) {
+      return; // Si el usuario elige "No", se cancela la acción
+    }
+
     try {
       const data = {
         serial: this.asset.Serial,
@@ -419,6 +433,7 @@ import axios from 'axios';
 
       if (response.data.status === "ok") {
         alert(message);
+        this.reiniciarFormulario();
       } else {
         alert(response.data.mensaje);
       }
@@ -430,6 +445,36 @@ import axios from 'axios';
   },
   async redirectToMassiveLoad() {
     this.$router.push('/CargaMasiva');
+  },
+  reiniciarFormulario(){
+    this.asset = {
+      Id: null,
+      Serial: '',
+      Sitio: '',
+      Nombre: '',
+      Encendido: '',
+      Estatus: '',
+      FechaEstatus: '',
+      Ambiente: '',
+      Tipo: '',
+      Cluster: '',
+      Chassis: '',
+      Bahia: '',
+      Barca: '',
+      Modelo: '',
+      Nucleos: '',
+      Memoria: '',
+      Servicio: '',
+      FechaInicioSoporte: '',
+      FechaFinSoporte: '',
+      FechaFinVida: '',
+      IpRed: '',
+      IpILO: '',
+      Dueño: '',
+      HDD: ''
+    };
+    this.existe = false;
+    this.activo = false;
   }
 /*
       // Maneja el envío del formulario
