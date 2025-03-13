@@ -155,7 +155,7 @@ def eliminar_activo():
 def agregar_activo():
     datos = request.get_json()
     
-    # Extract data from request
+    # Extraer datos de la petición
     vSerial = datos.get("serial")
     vNombre = datos.get("nombre")
     if datos.get("encendido") == "Si":
@@ -180,7 +180,7 @@ def agregar_activo():
         conn = get_connection()
         cursor = conn.cursor()
 
-        # Function to get the ID from a name in a catalog table
+        # Obtener ID a partir del texto en catalogos
         def get_catalog_id(table, name):
             query = sql.SQL("SELECT iId FROM admin.{} WHERE vNombre = %s").format(sql.Identifier(table))
             cursor.execute(query, (name,))
@@ -194,11 +194,11 @@ def agregar_activo():
         iServicio = get_catalog_id('servicios', datos.get("servicio"))
         iDueño = get_catalog_id('dueños', datos.get("dueño"))
 
-        # Check that all IDs have been successfully retrieved
+        # Verificar que todos los IDs hayan sido recuperados correctamente
         if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño):
             return jsonify({"mensaje": "Datos de catálogo inválidos", "status": "error"}), 400
 
-        # Insert new record into Equipos
+        # Query para agregar
         query = """
             INSERT INTO admin.equipos (
                 iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
@@ -235,7 +235,7 @@ def agregar_activo():
 def actualizar_activo():
     datos = request.get_json()
     
-    # Extract data from request
+    # Extraer datos de la petición
     vSerial = datos.get("serial")
     vNombre = datos.get("nombre")
     if datos.get("encendido") == "Si":
@@ -259,7 +259,7 @@ def actualizar_activo():
         conn = get_connection()
         cursor = conn.cursor()
 
-        # Function to get the ID from a name in a catalog table
+        # Obtener ID a partir del texto en catalogos
         def get_catalog_id(table, name):
             query = sql.SQL("SELECT iId FROM admin.{} WHERE vNombre = %s").format(sql.Identifier(table))
             cursor.execute(query, (name,))
@@ -273,11 +273,11 @@ def actualizar_activo():
         iServicio = get_catalog_id('servicios', datos.get("servicio"))
         iDueño = get_catalog_id('dueños', datos.get("dueño"))
 
-        # Check that all IDs have been successfully retrieved
+        # Verificar que todos los IDs hayan sido recuperados correctamente
         if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño):
             return jsonify({"mensaje": "Datos de catálogo inválidos", "status": "error"}), 400
 
-        # Update the existing record in Equipos
+        # Query para actualizar
         query = """
             UPDATE admin.equipos SET
                 iSitio = %s, vNombre = %s, bEncendido = %s, 
@@ -314,8 +314,8 @@ def actualizar_activo():
 # Carga masiva de activos
 @app.post('/api/upload')
 def upload_file():
-    print("llamada a upload")
     file = request.files['file']
+    commits = 0
 
     # Guardar el archivo temporalmente
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
@@ -355,49 +355,27 @@ def upload_file():
 
             # Preparar los datos para la inserción
             iSitio = sitio
-            print(iSitio)
             vNombre = row.iloc[2]
-            print(vNombre)
             bEncendido = True if row.iloc[3].strip().lower() == 'on' else False
-            print(bEncendido)
             dFechaEstatus = date.today()
-            print(dFechaEstatus)
             iAmbiente = ambiente
-            print(iAmbiente)
             iTipo = tipo
-            print(iTipo)
             vCluster = row.iloc[6]
-            print(vCluster)
             vChassis = row.iloc[7]
-            print(vChassis)
             vBahia = row.iloc[8]
-            print(vBahia)
             iMarca = marca
-            print(iMarca)
             vModelo = row.iloc[10]
-            print(vModelo)
             vSerial = row.iloc[11]
-            print(vSerial)
             iNucleos = row.iloc[12]
-            print(iNucleos)
             iMemoria = row.iloc[13]
-            print(iMemoria)
             iServicio = servicio
-            print(iServicio)
             dFechaInicioSoporte = row.iloc[15].strftime('%Y-%m-%d')
-            print(dFechaInicioSoporte)
             dFechaFinSoporte = row.iloc[16].strftime('%Y-%m-%d')
-            print(dFechaFinSoporte)
             dFechaFinVida = row.iloc[17].strftime('%Y-%m-%d')
-            print(dFechaFinVida)
             vIpRed = row.iloc[18]
-            print(vIpRed)
             vIpILO = row.iloc[19]
-            print(vIpILO)
             iDueño = dueño
-            print(iDueño)
             iHDD = row.iloc[21]
-            print(iHDD)
 
             # Insertar el equipo en la base de datos
             query = """
@@ -423,11 +401,15 @@ def upload_file():
             vIpRed, vIpILO, iDueño, iHDD
             ))
             conn.commit()
+            commits + 1
             
         cursor.close()
         conn.close()
 
-        return jsonify({'message': 'Carga masiva completada exitosamente'}), 200
+        if (commits>0):
+            return jsonify({'message': 'Carga masiva completada exitosamente'}), 200
+        else:
+            return jsonify({'error': str(e)}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

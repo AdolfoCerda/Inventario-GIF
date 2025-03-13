@@ -77,10 +77,39 @@ ALTER TABLE Equipos ADD CONSTRAINT Equipos_iDueño_fk FOREIGN KEY (iDueño) REFE
 INSERT INTO usuarios (vuser, vpassword) VALUES ('adolfo', '123');
 INSERT INTO Sitios (vNombre) VALUES ('TRIARA');
 INSERT INTO Ambientes (vNombre) VALUES ('Produccion');
-INSERT INTO Tipos (vNombre) VALUES ('Almacenamiento');
-INSERT INTO Marcas (vNombre) VALUES ('CISCO');
-INSERT INTO Servicios (vNombre) VALUES ('Afore');
-INSERT INTO Dueños (vNombre) VALUES ('Jose Garcia');
+INSERT INTO Tipos (vNombre) VALUES 
+('Almacenamiento'),
+('Chassis'),
+('Fabric Interconnect'),
+('Hipervisor'),
+('MDS'),
+('Módulo Virtual Connect'),
+('Servidor'),
+('Tape Library');
+INSERT INTO Marcas (vNombre) VALUES 
+('CISCO'),
+('DELL EMC'),
+('HPE'),
+('HUAWEI'),
+('IBM');
+INSERT INTO Servicios (vNombre) VALUES 
+('Afore'),
+('Almacenamiento'),
+('Bancoppel'),
+('Biometrico'),
+('Cartera en Línea'),
+('Chassis'),
+('ETL'),
+('Fabric'),
+('Huellas'),
+('HYPERVISOR'),
+('Hypervisor Afore'),
+('Switch MDS');
+INSERT INTO Dueños (vNombre) VALUES 
+('Jose Garcia'),
+('Luis Garibaldi'),
+('Victor Beltran'),
+('Jesus Medina');
 INSERT INTO Equipos (
   iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
   iAmbiente, iTipo, vCluster, vChassis, vBahia, 
