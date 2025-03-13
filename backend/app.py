@@ -401,7 +401,7 @@ def upload_file():
             vIpRed, vIpILO, iDueño, iHDD
             ))
             conn.commit()
-            commits + 1
+            commits += 1
             
         cursor.close()
         conn.close()
