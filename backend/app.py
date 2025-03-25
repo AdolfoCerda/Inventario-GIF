@@ -90,7 +90,12 @@ def obtener_opciones(tabla):
             "Tipos": "tipos",
             "Marcas": "marcas",
             "Servicios": "servicios",
-            "Dueños": "dueños"
+            "Dueños": "dueños",
+            # Nuevas tablas
+            "Procesadores": "procesadores",
+            "UnidadesAlmac": "unidadesalmac",
+            "SisOperativos": "sisoperativos",
+            "Racks": "racks"
         }
 
         # Validar si la tabla solicitada está permitida
@@ -168,13 +173,21 @@ def agregar_activo():
     vBahia = datos.get("bahia")
     vModelo = datos.get("modelo")
     iNucleos = datos.get("nucleos")
-    iMemoria = datos.get("memoria")
+    #iMemoria = datos.get("memoria") // Campo eliminado
     dFechaInicioSoporte = datos.get("fechaInicioSoporte")
     dFechaFinSoporte = datos.get("fechaFinSoporte")
     dFechaFinVida = datos.get("fechaFinVida")
     vIpRed = datos.get("ipRed")
     vIpILO = datos.get("ipILO")
-    iHDD = datos.get("hdd")
+    #iHDD = datos.get("hdd") // Campo eliminado
+
+    # Campos nuevos
+    iCantCpus = datos.get("cantCpus")
+    iCantUnidades = datos.get("cantUnidades")
+    vCapacidadAlmac = datos.get("capacidadAlmac")
+    iCantModulosRam = datos.get("cantModulosRam")
+    vCapacidadRam = datos.get("capacidadRam")
+    vTipoRam = datos.get("tipoRam")
 
     try:
         conn = get_connection()
@@ -193,33 +206,44 @@ def agregar_activo():
         iMarca = get_catalog_id('marcas', datos.get("marca"))
         iServicio = get_catalog_id('servicios', datos.get("servicio"))
         iDueño = get_catalog_id('dueños', datos.get("dueño"))
+        # Catalogos nuevos
+        iProcesador = get_catalog_id('procesadores', datos.get("procesador"))
+        iUnidadAlmac = get_catalog_id('unidadesalmac', datos.get("unidadAlmac"))
+        iSistema = get_catalog_id('sisoperativos', datos.get("sistema"))
+        iRack = get_catalog_id('racks', datos.get("rack"))
 
         # Verificar que todos los IDs hayan sido recuperados correctamente
-        if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño):
+        if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño, iProcesador, iUnidadAlmac, iSistema, iRack):
             return jsonify({"mensaje": "Datos de catálogo inválidos", "status": "error"}), 400
 
         # Query para agregar
         query = """
-            INSERT INTO admin.equipos (
+            INSERT INTO admin.Equipos (
                 iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
                 iAmbiente, iTipo, vCluster, vChassis, vBahia, 
-                iMarca, vModelo, vSerial, iNucleos, iMemoria, 
-                iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
-                vIpRed, vIpILO, iDueño, iHDD
+                iMarca, vModelo, vSerial, iServicio,
+                dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida,
+                vIpRed, vIpILO, iDueño,
+                iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
+                iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack
             ) VALUES (
                 %s, %s, %s, 'Activo', %s, 
                 %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, 
-                %s, %s, %s, %s
+                %s, %s, %s, %s,
+                %s, %s, %s, 
+                %s, %s, %s, 
+                %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s
             )
         """
         cursor.execute(query, (
             iSitio, vNombre, bEncendido, dFechaEstatus, 
             iAmbiente, iTipo, vCluster, vChassis, vBahia, 
-            iMarca, vModelo, vSerial, iNucleos, iMemoria, 
-            iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
-            vIpRed, vIpILO, iDueño, iHDD
+            iMarca, vModelo, vSerial, iServicio, 
+            dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+            vIpRed, vIpILO, iDueño,
+            iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
+            iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack
         ))
         
         conn.commit()
@@ -247,13 +271,21 @@ def actualizar_activo():
     vBahia = datos.get("bahia")
     vModelo = datos.get("modelo")
     iNucleos = datos.get("nucleos")
-    iMemoria = datos.get("memoria")
+    #iMemoria = datos.get("memoria") // Campo eliminado
     dFechaInicioSoporte = datos.get("fechaInicioSoporte")
     dFechaFinSoporte = datos.get("fechaFinSoporte")
     dFechaFinVida = datos.get("fechaFinVida")
     vIpRed = datos.get("ipRed")
     vIpILO = datos.get("ipILO")
-    iHDD = datos.get("hdd")
+    #iHDD = datos.get("hdd") // Campo eliminado
+
+    # Campos nuevos
+    iCantCpus = datos.get("cantCpus")
+    iCantUnidades = datos.get("cantUnidades")
+    vCapacidadAlmac = datos.get("capacidadAlmac")
+    iCantModulosRam = datos.get("cantModulosRam")
+    vCapacidadRam = datos.get("capacidadRam")
+    vTipoRam = datos.get("tipoRam")
 
     try:
         conn = get_connection()
@@ -272,31 +304,41 @@ def actualizar_activo():
         iMarca = get_catalog_id('marcas', datos.get("marca"))
         iServicio = get_catalog_id('servicios', datos.get("servicio"))
         iDueño = get_catalog_id('dueños', datos.get("dueño"))
+        # Catalogos nuevos
+        iProcesador = get_catalog_id('procesadores', datos.get("procesador"))
+        iUnidadAlmac = get_catalog_id('unidadesalmac', datos.get("unidadAlmac"))
+        iSistema = get_catalog_id('sisoperativos', datos.get("sistema"))
+        iRack = get_catalog_id('racks', datos.get("rack"))
 
         # Verificar que todos los IDs hayan sido recuperados correctamente
-        if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño):
+        if None in (iSitio, iAmbiente, iTipo, iMarca, iServicio, iDueño, iProcesador, iUnidadAlmac, iSistema, iRack):
             return jsonify({"mensaje": "Datos de catálogo inválidos", "status": "error"}), 400
 
         # Query para actualizar
         query = """
-            UPDATE admin.equipos SET
+            UPDATE admin.Equipos SET
                 iSitio = %s, vNombre = %s, bEncendido = %s, 
                 iAmbiente = %s, iTipo = %s, vCluster = %s, 
                 vChassis = %s, vBahia = %s, iMarca = %s, 
-                vModelo = %s, iNucleos = %s, iMemoria = %s, 
+                vModelo = %s, iNucleos = %s, 
                 iServicio = %s, dFechaInicioSoporte = %s, 
                 dFechaFinSoporte = %s, dFechaFinVida = %s, 
-                vIpRed = %s, vIpILO = %s, iDueño = %s, iHDD = %s
+                vIpRed = %s, vIpILO = %s, iDueño = %s,
+                iProcesador = %s, iCantCpus = %s, iNucleos = %s, iUnidadAlmac = %s, iCantUnidades = %s, vCapacidadAlmac = %s,
+                iCantModulosRam = %s, vCapacidadRam = %s, vTipoRam = %s, iSistema = %s, iRack = %s
             WHERE vSerial = %s
         """
         cursor.execute(query, (
             iSitio, vNombre, bEncendido, 
             iAmbiente, iTipo, vCluster, 
             vChassis, vBahia, iMarca, 
-            vModelo, iNucleos, iMemoria, 
+            vModelo, iNucleos, 
             iServicio, dFechaInicioSoporte, 
             dFechaFinSoporte, dFechaFinVida, 
-            vIpRed, vIpILO, iDueño, iHDD, vSerial
+            vIpRed, vIpILO, iDueño,
+            iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
+            iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack,
+            vSerial
         ))
         
         conn.commit()
