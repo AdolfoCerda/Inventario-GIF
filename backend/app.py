@@ -188,6 +188,7 @@ def agregar_activo():
     iCantModulosRam = datos.get("cantModulosRam")
     vCapacidadRam = datos.get("capacidadRam")
     vTipoRam = datos.get("tipoRam")
+    iUnidadRack = datos.get("unidadRack")
 
     try:
         conn = get_connection()
@@ -225,7 +226,7 @@ def agregar_activo():
                 dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida,
                 vIpRed, vIpILO, iDueño,
                 iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
-                iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack
+                iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack, iUnidadRack
             ) VALUES (
                 %s, %s, %s, 'Activo', %s, 
                 %s, %s, %s, %s, %s, 
@@ -233,7 +234,7 @@ def agregar_activo():
                 %s, %s, %s, 
                 %s, %s, %s, 
                 %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s
             )
         """
         cursor.execute(query, (
@@ -243,7 +244,7 @@ def agregar_activo():
             dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
             vIpRed, vIpILO, iDueño,
             iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
-            iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack
+            iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack, iUnidadRack
         ))
         
         conn.commit()
@@ -286,6 +287,7 @@ def actualizar_activo():
     iCantModulosRam = datos.get("cantModulosRam")
     vCapacidadRam = datos.get("capacidadRam")
     vTipoRam = datos.get("tipoRam")
+    iUnidadRack = datos.get("unidadRack")
 
     try:
         conn = get_connection()
@@ -325,7 +327,7 @@ def actualizar_activo():
                 dFechaFinSoporte = %s, dFechaFinVida = %s, 
                 vIpRed = %s, vIpILO = %s, iDueño = %s,
                 iProcesador = %s, iCantCpus = %s, iNucleos = %s, iUnidadAlmac = %s, iCantUnidades = %s, vCapacidadAlmac = %s,
-                iCantModulosRam = %s, vCapacidadRam = %s, vTipoRam = %s, iSistema = %s, iRack = %s
+                iCantModulosRam = %s, vCapacidadRam = %s, vTipoRam = %s, iSistema = %s, iRack = %s, iUnidadRack = %s
             WHERE vSerial = %s
         """
         cursor.execute(query, (
@@ -337,7 +339,7 @@ def actualizar_activo():
             dFechaFinSoporte, dFechaFinVida, 
             vIpRed, vIpILO, iDueño,
             iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
-            iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack,
+            iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack, iUnidadRack,
             vSerial
         ))
         
