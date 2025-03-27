@@ -65,7 +65,11 @@ def activo():
             t.vNombre AS tipo_nombre,
             m.vNombre AS marca_nombre,
             sv.vNombre AS servicio_nombre,
-            d.vNombre AS dueño_nombre
+            d.vNombre AS dueño_nombre,
+            p.vNombre AS procesador_nombre,
+            u.vNombre AS unidadAlmac_nombre,
+            si.vNombre AS sistema_nombre,
+            r.vNombre AS rack_nombre
         FROM admin.equipos e
         LEFT JOIN admin.sitios s ON e.iSitio = s.iId
         LEFT JOIN admin.ambientes a ON e.iAmbiente = a.iId
@@ -73,6 +77,10 @@ def activo():
         LEFT JOIN admin.marcas m ON e.iMarca = m.iId
         LEFT JOIN admin.servicios sv ON e.iServicio = sv.iId
         LEFT JOIN admin.dueños d ON e.iDueño = d.iId
+        LEFT JOIN admin.procesadores p ON e.iProcesador = p.iId
+        LEFT JOIN admin.unidadesalmac u ON e.iUnidadAlmac = u.iId
+        LEFT JOIN admin.sisoperativos si ON e.iSistema = si.iId
+        LEFT JOIN admin.racks r ON e.iRack = r.iId
         WHERE e.vserial = %s
     """
     

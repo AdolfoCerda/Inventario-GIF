@@ -1,17 +1,7 @@
 <template>
     <div class="main-menu">
-      <!-- Header -->
-      <header class="header">
-        <div class="logo-container">
-          <img src="../assets/images/logo-coppel.png" alt="Logo" class="logo" />
-          <span class="company-label">Coppel</span>
-        </div>
-        <div class="user-info">
-          <span class="username">{{ username }}</span>
-          <i class="user-icon">👤</i>
-        </div>
-      </header>
-  
+      
+      <Header />
       <!-- Contenido Principal -->
     <div class="content">
       <div class="icon-container">
@@ -38,10 +28,13 @@
   </template>
   
   <script>
+  import Header from "@/components/Header.vue";
   export default {
+    components: {
+    Header,
+    },
     data() {
       return {
-        username: 'Nombre de Usuario', // Aquí puedes obtener el nombre del usuario que inició sesión
         icons: [
           { symbol: '🏠', label: 'Gestión de Activos' },
           { symbol: '📊', label: 'Gestión de Activos' },
@@ -63,44 +56,6 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-  }
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #ffe94b;
-    padding: 10px 20px;
-  }
-  
-  .logo-container {
-    display: flex;
-    align-items: center;
-  }
-  
-  .logo {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-  }
-  
-  .company-label {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .username {
-    margin-right: 10px;
-    font-size: 18px;
-  }
-  
-  .user-icon {
-    font-size: 24px;
   }
   
   .content {

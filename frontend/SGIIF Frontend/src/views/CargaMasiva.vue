@@ -1,17 +1,6 @@
 <template>
     <div>
-      <!-- Header (copiado del código que proporcionaste) -->
-      <header class="header">
-        <div class="logo-container">
-          <img src="../assets/images/logo-coppel.png" alt="Logo" class="logo" />
-          <span class="company-label">Coppel</span>
-        </div>
-        <div class="user-info">
-          <span class="username">{{ username }}</span>
-          <i class="user-icon">👤</i>
-        </div>
-      </header>
-  
+      <Header />
       <!-- Contenedor principal -->
       <div class="upload-container">
         <!-- Recuadro central -->
@@ -25,12 +14,15 @@
   </template>
   
   <script>
+  import Header from "@/components/Header.vue";
   import axios from 'axios';
   
   export default {
+    components: {
+    Header,
+    },
     data() {
       return {
-        username: "Nombre de Usuario", // Puedes cambiar esto dinámicamente
         file: null, // Almacena el archivo seleccionado
       };
     },
@@ -67,45 +59,6 @@
   </script>
   
   <style scoped>
-  /* Estilos del header (copiados del código que proporcionaste) */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #ffe94b;
-    padding: 10px 20px;
-  }
-  
-  .logo-container {
-    display: flex;
-    align-items: center;
-  }
-  
-  .logo {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-  }
-  
-  .company-label {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .username {
-    margin-right: 10px;
-    font-size: 18px;
-  }
-  
-  .user-icon {
-    font-size: 24px;
-  }
-  
   /* Estilos del contenedor principal */
   .upload-container {
     display: flex;
