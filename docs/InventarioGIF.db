@@ -13,20 +13,18 @@ CREATE TABLE IF NOT EXISTS Usuarios (
 CREATE TABLE IF NOT EXISTS Equipos (
   iId SERIAL NOT NULL,
   iSitio integer NOT NULL,
-  vNombre varchar(500) NOT NULL,
+  vNombre varchar(100) NOT NULL,
   bEncendido boolean NOT NULL,
   vEstatus varchar(20) NOT NULL,
   dFechaEstatus date NOT NULL,
   iAmbiente integer NOT NULL,
   iTipo integer NOT NULL,
-  vCluster varchar(500) NOT NULL,
-  vChassis varchar(500),
-  vBahia varchar(500),
+  vCluster varchar(100) NOT NULL,
+  vChassis varchar(100),
+  vBahia varchar(100),
   iMarca integer NOT NULL,
-  vModelo varchar(500) NOT NULL,
+  vModelo varchar(100) NOT NULL,
   vSerial varchar(20) PRIMARY KEY,
-  iNucleos integer,
-  iMemoria integer,
   iServicio integer NOT NULL,
   dFechaInicioSoporte date NOT NULL,
   dFechaFinSoporte date NOT NULL,
@@ -34,7 +32,18 @@ CREATE TABLE IF NOT EXISTS Equipos (
   vIpRed varchar(50),
   vIpILO varchar(50),
   iDueño integer NOT NULL,
-  iHDD integer
+  iProcesador integer,
+  iCantCpus integer,
+  iNucleos integer,
+  iUnidadAlmac integer,
+  iCantUnidades integer,
+  vCapacidadAlmac varchar(10),
+  iCantModulosRam integer,
+  vCapacidadRam varchar(10),
+  vTipoRam varchar(10),
+  iSistema integer,
+  iRack integer,
+  iUnidadRack integer
 );
 
 CREATE TABLE IF NOT EXISTS Sitios (
@@ -67,12 +76,42 @@ CREATE TABLE IF NOT EXISTS Dueños (
   vNombre varchar(500) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS Procesadores (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS UnidadesAlmac (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS SisOperativos (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Racks (
+  iId SERIAL PRIMARY KEY,
+  vNombre varchar(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS EquipoServicio (
+    vSerialEquipo varchar(20),
+    iIdServicio integer,
+    PRIMARY KEY (vSerialEquipo, iIdServicio)
+);
+
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iSitio_fk FOREIGN KEY (iSitio) REFERENCES Sitios (iId);
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iAmbiente_fk FOREIGN KEY (iAmbiente) REFERENCES Ambientes (iId);
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iTipo_fk FOREIGN KEY (iTipo) REFERENCES Tipos (iId);
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iMarca_fk FOREIGN KEY (iMarca) REFERENCES Marcas (iId);
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iServicio_fk FOREIGN KEY (iServicio) REFERENCES Servicios (iId);
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iDueño_fk FOREIGN KEY (iDueño) REFERENCES Dueños (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iProcesador_fk FOREIGN KEY (iProcesador) REFERENCES Procesadores (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iUnidadAlmac_fk FOREIGN KEY (iUnidadAlmac) REFERENCES UnidadesAlmac (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iSistema_fk FOREIGN KEY (iSistema) REFERENCES SisOperativos (iId);
+ALTER TABLE Equipos ADD CONSTRAINT Equipos_iRack_fk FOREIGN KEY (iRack) REFERENCES Racks (iId);
 
 INSERT INTO usuarios (vuser, vpassword) VALUES ('adolfo', '123');
 INSERT INTO Sitios (vNombre) VALUES ('TRIARA');
@@ -110,16 +149,36 @@ INSERT INTO Dueños (vNombre) VALUES
 ('Luis Garibaldi'),
 ('Victor Beltran'),
 ('Jesus Medina');
+INSERT INTO Procesadores (vNombre) VALUES 
+('Intel Xeon 6 Gen'),
+('AMD EPYC 5 Gen');
+INSERT INTO UnidadesAlmac (vNombre) VALUES 
+('WD Red Plus'),
+('Seagate Exos');
+INSERT INTO SisOperativos (vNombre) VALUES 
+('Windows Server'),
+('Debian'),
+('Unix');
+INSERT INTO Racks (vNombre) VALUES 
+('Rack 1'),
+('Rack 2'),
+('Rack 3');
 INSERT INTO Equipos (
   iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
   iAmbiente, iTipo, vCluster, vChassis, vBahia, 
-  iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+  iMarca, vModelo, vSerial,
   iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
-  vIpRed, vIpILO, iDueño, iHDD
+  vIpRed, vIpILO, iDueño,
+  iProcesador, iCantCpus, iNucleos, iUnidadAlmac,
+  iCantUnidades, vCapacidadAlmac, iCantModulosRam, vCapacidadRam,
+  vTipoRam, iSistema, iRack, iUnidadRack
 ) VALUES (
   1, 'Server 1 (HuellasMTY01)', true, 'Activo', '2024-06-05', 
   1, 1, 'Huella Triara', 'Fabric B', 'A', 
-  1, 'UCSB-B480-M5', 'FLM24470503', 112, 1572864, 
+  1, 'UCSB-B480-M5', 'FLM24470503', 
   1, '2024-06-01', '2025-10-31', '2029-05-31', 
-  '192.168.1.1', '192.168.1.2', 1, 2048
+  '192.168.1.1', '192.168.1.2', 1,
+  1, 4, 16, 1,
+  5, '1TB', 4, '32GB',
+  'DDR3', 1, 1, 3
 );
