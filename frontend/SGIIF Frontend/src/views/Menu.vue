@@ -12,13 +12,13 @@
         </router-link>
 
         <!-- Segundo ícono: Reportes -->
-        <router-link to="/reports" class="icon-item">
+        <router-link to="/Consultas" class="icon-item">
           <i class="icon">📊</i>
-          <span class="icon-label">Reportes</span>
+          <span class="icon-label">Consultas y Reportes</span>
         </router-link>
 
         <!-- Tercer ícono: Configuraciones -->
-        <router-link to="/settings" class="icon-item">
+        <router-link to="/Configuraciones" class="icon-item">
           <i class="icon">⚙️</i>
           <span class="icon-label">Configuraciones</span>
         </router-link>
@@ -37,8 +37,8 @@
       return {
         icons: [
           { symbol: '🏠', label: 'Gestión de Activos' },
-          { symbol: '📊', label: 'Gestión de Activos' },
-          { symbol: '⚙️', label: 'Gestión de Activos' }
+          { symbol: '📊', label: 'Consultas y Reportes' },
+          { symbol: '⚙️', label: 'Configuraciones' }
         ]
       };
     },
@@ -79,11 +79,12 @@
   }
   
   .icon {
-    font-size: 64px;
+    font-size: 100px;
     margin-bottom: 10px;
   }
   
   .icon-label {
-    font-size: 18px;
+    font-size: 30px;
+    font-weight: bold;
   }
   </style>

@@ -64,7 +64,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 80px); /* Ajusta la altura para que esté centrado */
+    height: calc(100vh - 90px); /* Ajusta la altura para que esté centrado */
     background-color: #f9f9f9; /* Fondo gris claro */
   }
   
