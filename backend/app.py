@@ -88,6 +88,88 @@ def activo():
     resultado = cursor.fetchall()
     return jsonify(resultado)
 
+@app.post('/api/servicios')
+def obtener_servicios():
+    datos = request.get_json()
+    serial = datos.get("serial")
+
+    # Inicializar valores para enviar al front
+    servicios_estado = {
+        "afore": False,
+        "almacenamiento": False,
+        "bancoppel": False,
+        "biometrico": False,
+        "cartera": False,
+        "chassis": False,
+        "etl": False,
+        "fabric": False,
+        "huellas": False,
+        "hypervisor": False,
+        "hvafore": False,
+        "switchmds": False
+    }
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Consulta para obtener iIdServicio
+        query = """
+            SELECT iIdServicio FROM admin.equiposervicio
+            WHERE vserialequipo = %s
+        """
+        cursor.execute(query, (serial,))
+        resultados = cursor.fetchall()
+
+        # Para cada iIdServicio, busca vNombre en la tabla servicios y actualiza las variables
+        for row in resultados:
+            iIdServicio = row[0]
+            query_servicio = "SELECT vNombre FROM admin.servicios WHERE iId = %s"
+            cursor.execute(query_servicio, (iIdServicio,))
+            servicio = cursor.fetchone()
+
+            if servicio:
+                vNombre = servicio[0].strip().lower()
+
+                # Matching vNombre and updating boolean variables
+                if vNombre == 'afore':
+                    servicios_estado["afore"] = True
+                elif vNombre == 'almacenamiento':
+                    servicios_estado["almacenamiento"] = True
+                elif vNombre == 'bancoppel':
+                    servicios_estado["bancoppel"] = True
+                elif vNombre == 'biometrico':
+                    servicios_estado["biometrico"] = True
+                elif vNombre == 'cartera en línea':
+                    servicios_estado["cartera"] = True
+                elif vNombre == 'chassis':
+                    servicios_estado["chassis"] = True
+                elif vNombre == 'etl':
+                    servicios_estado["etl"] = True
+                elif vNombre == 'fabric':
+                    servicios_estado["fabric"] = True
+                elif vNombre == 'huellas':
+                    servicios_estado["huellas"] = True
+                elif vNombre == 'hypervisor':
+                    servicios_estado["hypervisor"] = True
+                elif vNombre == 'hypervisor afore':
+                    servicios_estado["hvafore"] = True
+                elif vNombre == 'switch mds':
+                    servicios_estado["switchmds"] = True
+
+        cursor.close()
+        conn.close()
+
+        print(servicios_estado)
+
+        # Retorna el JSON con los estados de los servicios
+        return jsonify(servicios_estado)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    
+
 @app.route('/api/options/<tabla>', methods=['GET'])
 def obtener_opciones(tabla):
     try:

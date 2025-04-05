@@ -117,7 +117,7 @@
             <label for="afore">Afore</label>
           </div>
           <div class="form-group servicio-check">
-            <input type="checkbox" id="bancoppel" v-model="asset.Bancoppel"/>
+            <input type="checkbox" id="bancoppel" v-model="asset.BanCoppel"/>
             <label for="bancoppel">BanCoppel</label>
           </div>
           <div class="form-group servicio-check">
@@ -424,6 +424,18 @@
         Fabric: '',
         Hypervisor: '',
         SwitchMDS: '',
+        Afore: '',
+        BanCoppel: '',
+        Cartera: '',
+        ETL: '',
+        Huellas: '',
+        HVAfore: '',
+        Almacenamiento: '',
+        Biometrico: '',
+        ServChassis: '',
+        Fabric: '',
+        Hypervisor: '',
+        SwitchMDS: '',
         },
       catalogOptions: {
         CantCPUs: [1, 2, 3, 4, 5, 6],
@@ -536,6 +548,34 @@
             this.existe = false;
             this.activo = false;
           }
+
+          this.buscarServicios();
+        }
+      } catch (error) {
+        console.error("Error al obtener el activo:", error);
+      }
+    },
+    async buscarServicios() {
+      try {
+        if (this.asset.Serial) {
+          const response = await axios.post('http://localhost:5000/api/servicios', {
+            serial: this.asset.Serial
+          });
+          
+          response.data;
+
+          this.asset.Afore = response.data.afore;
+          this.asset.BanCoppel = response.data.bancoppel;
+          this.asset.Cartera = response.data.cartera;
+          this.asset.ETL = response.data.etl;
+          this.asset.Huellas = response.data.huellas;
+          this.asset.HVAfore = response.data.hvafore;
+          this.asset.Almacenamiento = response.data.almacenamiento;
+          this.asset.Biometrico = response.data.biometrico;
+          this.asset.ServChassis = response.data.chassis;
+          this.asset.Fabric = response.data.fabric;
+          this.asset.Hypervisor = response.data.hypervisor;
+          this.asset.SwitchMDS = response.data.switchmds;
         }
       } catch (error) {
         console.error("Error al obtener el activo:", error);
@@ -692,6 +732,18 @@
       UnidadAlmac: '',
       Sistema: '',
       Rack: '',
+      Afore: '',
+      BanCoppel: '',
+      Cartera: '',
+      ETL: '',
+      Huellas: '',
+      HVAfore: '',
+      Almacenamiento: '',
+      Biometrico: '',
+      ServChassis: '',
+      Fabric: '',
+      Hypervisor: '',
+      SwitchMDS: '',
       Afore: '',
       BanCoppel: '',
       Cartera: '',
