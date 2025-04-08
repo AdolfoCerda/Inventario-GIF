@@ -553,3 +553,35 @@ def upload_file():
     
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.get('/api/activos')
+def obtener_activos():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT 
+                e.*,
+                s.vNombre AS sitio_nombre,
+                t.vNombre AS tipo_nombre,
+                m.vNombre AS marca_nombre
+            FROM admin.equipos e
+            LEFT JOIN admin.sitios s ON e.iSitio = s.iId
+            LEFT JOIN admin.tipos t ON e.iTipo = t.iId
+            LEFT JOIN admin.marcas m ON e.iMarca = m.iId
+            ORDER BY e.vSerial
+        """
+        
+        cursor.execute(query)
+        columns = [desc[0] for desc in cursor.description]
+        activos = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        return jsonify(activos)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
