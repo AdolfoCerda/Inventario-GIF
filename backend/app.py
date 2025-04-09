@@ -263,15 +263,11 @@ def agregar_activo():
     vBahia = datos.get("bahia")
     vModelo = datos.get("modelo")
     iNucleos = datos.get("nucleos")
-    #iMemoria = datos.get("memoria") // Campo eliminado
     dFechaInicioSoporte = datos.get("fechaInicioSoporte")
     dFechaFinSoporte = datos.get("fechaFinSoporte")
     dFechaFinVida = datos.get("fechaFinVida")
     vIpRed = datos.get("ipRed")
     vIpILO = datos.get("ipILO")
-    #iHDD = datos.get("hdd") // Campo eliminado
-
-    # Campos nuevos
     iCantCpus = datos.get("cantCpus")
     iCantUnidades = datos.get("cantUnidades")
     vCapacidadAlmac = datos.get("capacidadAlmac")
@@ -279,6 +275,20 @@ def agregar_activo():
     vCapacidadRam = datos.get("capacidadRam")
     vTipoRam = datos.get("tipoRam")
     iUnidadRack = datos.get("unidadRack")
+
+    #Valor booleano servicios
+    afore = datos.get("afore")
+    almacenamiento = datos.get("almacenamiento")
+    bancoppel = datos.get("bancoppel")
+    biometrico = datos.get("biometrico")
+    cartera = datos.get("cartera")
+    servchassis = datos.get("servchassis")
+    etl = datos.get("ETL")
+    fabric = datos.get("fabric")
+    huellas = datos.get("huellas")
+    hypervisor = datos.get("hypervisor")
+    hvafore = datos.get("HVafore")
+    switchmds = datos.get("switchMDS")
 
     try:
         conn = get_connection()
@@ -336,6 +346,44 @@ def agregar_activo():
             iProcesador, iCantCpus, iNucleos, iUnidadAlmac, iCantUnidades, vCapacidadAlmac,
             iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack, iUnidadRack
         ))
+
+        # Registrar servicios si el valor es true
+        if afore:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 1); """
+            cursor.execute(queryservicios, (vSerial,))
+        if almacenamiento:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 2); """
+            cursor.execute(queryservicios, (vSerial,))
+        if bancoppel:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 3); """
+            cursor.execute(queryservicios, (vSerial,))
+        if biometrico:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 4); """
+            cursor.execute(queryservicios, (vSerial,))
+        if cartera:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 5); """
+            cursor.execute(queryservicios, (vSerial,))
+        if servchassis:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 6); """
+            cursor.execute(queryservicios, (vSerial,))
+        if etl:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 7); """
+            cursor.execute(queryservicios, (vSerial,))
+        if fabric:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 8); """
+            cursor.execute(queryservicios, (vSerial,))
+        if huellas:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 9); """
+            cursor.execute(queryservicios, (vSerial,))
+        if hypervisor:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 10); """
+            cursor.execute(queryservicios, (vSerial,))
+        if hvafore:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 11); """
+            cursor.execute(queryservicios, (vSerial,))
+        if switchmds:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 12); """
+            cursor.execute(queryservicios, (vSerial,))
         
         conn.commit()
         cursor.close()
@@ -362,15 +410,11 @@ def actualizar_activo():
     vBahia = datos.get("bahia")
     vModelo = datos.get("modelo")
     iNucleos = datos.get("nucleos")
-    #iMemoria = datos.get("memoria") // Campo eliminado
     dFechaInicioSoporte = datos.get("fechaInicioSoporte")
     dFechaFinSoporte = datos.get("fechaFinSoporte")
     dFechaFinVida = datos.get("fechaFinVida")
     vIpRed = datos.get("ipRed")
     vIpILO = datos.get("ipILO")
-    #iHDD = datos.get("hdd") // Campo eliminado
-
-    # Campos nuevos
     iCantCpus = datos.get("cantCpus")
     iCantUnidades = datos.get("cantUnidades")
     vCapacidadAlmac = datos.get("capacidadAlmac")
@@ -378,6 +422,20 @@ def actualizar_activo():
     vCapacidadRam = datos.get("capacidadRam")
     vTipoRam = datos.get("tipoRam")
     iUnidadRack = datos.get("unidadRack")
+
+    #Valor booleano servicios
+    afore = datos.get("afore")
+    almacenamiento = datos.get("almacenamiento")
+    bancoppel = datos.get("bancoppel")
+    biometrico = datos.get("biometrico")
+    cartera = datos.get("cartera")
+    servchassis = datos.get("servchassis")
+    etl = datos.get("ETL")
+    fabric = datos.get("fabric")
+    huellas = datos.get("huellas")
+    hypervisor = datos.get("hypervisor")
+    hvafore = datos.get("HVafore")
+    switchmds = datos.get("switchMDS")
 
     try:
         conn = get_connection()
@@ -432,15 +490,98 @@ def actualizar_activo():
             iCantModulosRam, vCapacidadRam, vTipoRam, iSistema, iRack, iUnidadRack,
             vSerial
         ))
+
+        # Si es verdadero registrar servicio si no existe, si no eliminar posible registro de servicio
+        if afore:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 1)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 1; """
+            cursor.execute(queryservicios, (vSerial,))
+        if almacenamiento:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 2)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 2; """
+            cursor.execute(queryservicios, (vSerial,))
+        if bancoppel:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 3)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 3; """
+            cursor.execute(queryservicios, (vSerial,))
+        if biometrico:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 4)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 4; """
+            cursor.execute(queryservicios, (vSerial,))
+        if cartera:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 5)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 5; """
+            cursor.execute(queryservicios, (vSerial,))
+        if servchassis:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 6)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 6; """
+            cursor.execute(queryservicios, (vSerial,))
+        if etl:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 7)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 7; """
+            cursor.execute(queryservicios, (vSerial,))
+        if fabric:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 8)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 8; """
+            cursor.execute(queryservicios, (vSerial,))
+        if huellas:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 9)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 9; """
+            cursor.execute(queryservicios, (vSerial,))
+        if hypervisor:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 10)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 10; """
+            cursor.execute(queryservicios, (vSerial,))
+        if hvafore:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 11)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 11; """
+            cursor.execute(queryservicios, (vSerial,))
+        if switchmds:
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 12)
+            ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
+            cursor.execute(queryservicios, (vSerial,))
+        else:
+            queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 12; """
+            cursor.execute(queryservicios, (vSerial,))
         
         conn.commit()
         cursor.close()
         conn.close()
 
-        if cursor.rowcount > 0:
-            return jsonify({"mensaje": "Equipo actualizado correctamente", "status": "ok"}), 200
-        else:
-            return jsonify({"mensaje": "Equipo no encontrado para actualizar", "status": "error"}), 404
+        return jsonify({"mensaje": "Equipo actualizado correctamente", "status": "ok"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e), "status": "error"}), 500
