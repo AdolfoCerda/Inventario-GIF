@@ -5,6 +5,7 @@ import Menu from '../views/Menu.vue';
 import GDA from '../views/GestionDeActivos.vue';
 import CM from '../views/CargaMasiva.vue';
 import C from '../views/Consultas.vue';
+import CNF from '../views/Configuraciones.vue'; // Importa el componente Configuraciones
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/Consultas',
       name: 'Consultas',
       component: C, // Ruta para Consultas
+    },
+    {
+      path: '/Configuraciones',
+      name: 'Configuraciones',
+      component: CNF, // Ruta para Configuraciones
     },
     {
       path: '/about',

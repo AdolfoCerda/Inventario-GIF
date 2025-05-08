@@ -803,3 +803,101 @@ def obtener_activos():
     
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+# Prueba para view Configuraciones
+# Endpoint genérico para manejar catálogos
+@app.route('/api/catalogos/<tabla>', methods=['GET', 'POST', 'DELETE'])
+def gestionar_catalogo(tabla):
+    # Validar tabla permitida
+    tablas_permitidas = {
+        'sitios': 'Sitios',
+        'ambientes': 'Ambientes',
+        'tipos': 'Tipos',
+        'marcas': 'Marcas',
+        'servicios': 'Servicios',
+        'duenos': 'Dueños',
+        'procesadores': 'Procesadores',
+        'unidadesalmac': 'UnidadesAlmac',
+        'sisoperativos': 'SisOperativos',
+        'racks': 'Racks'
+    }
+    
+    if tabla not in tablas_permitidas:
+        return jsonify({"error": "Catálogo no válido"}), 400
+    
+    nombre_tabla = tablas_permitidas[tabla]
+    conn = None
+    cursor = None
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        if request.method == 'GET':
+            # Obtener todas las opciones del catálogo
+            cursor.execute(f"SELECT * FROM admin.{nombre_tabla} ORDER BY vNombre")
+            columnas = [desc[0] for desc in cursor.description]
+            opciones = [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
+            return jsonify(opciones)
+
+        elif request.method == 'POST':
+            # Agregar nueva opción al catálogo
+            datos = request.get_json()
+            nombre = datos.get('nombre')
+            
+            if not nombre:
+                return jsonify({"error": "Nombre requerido"}), 400
+                
+            cursor.execute(
+                f"INSERT INTO admin.{nombre_tabla} (vNombre) VALUES (%s) RETURNING iId, vNombre",
+                (nombre,)
+            )
+            nueva_opcion = cursor.fetchone()
+            conn.commit()
+            
+            return jsonify({
+                "iId": nueva_opcion[0],
+                "vNombre": nueva_opcion[1]
+            }), 201
+
+        elif request.method == 'DELETE':
+            # Eliminar opción del catálogo
+            id_opcion = request.args.get('id')
+            
+            if not id_opcion:
+                return jsonify({"error": "ID requerido"}), 400
+                
+            # Verificar si la opción está en uso
+            if nombre_tabla in ['Sitios', 'Ambientes', 'Tipos', 'Marcas', 'Servicios', 'Dueños']:
+                cursor.execute(
+                    f"SELECT COUNT(*) FROM admin.Equipos WHERE i{nombre_tabla[:-1]} = %s",
+                    (id_opcion,)
+                )
+                en_uso = cursor.fetchone()[0] > 0
+                
+                if en_uso:
+                    return jsonify({
+                        "error": f"No se puede eliminar, hay equipos asociados a esta opción"
+                    }), 400
+            
+            cursor.execute(
+                f"DELETE FROM admin.{nombre_tabla} WHERE iId = %s RETURNING vNombre",
+                (id_opcion,)
+            )
+            eliminado = cursor.fetchone()
+            
+            if not eliminado:
+                return jsonify({"error": "Opción no encontrada"}), 404
+                
+            conn.commit()
+            return jsonify({"mensaje": f"'{eliminado[0]}' eliminado correctamente"}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
