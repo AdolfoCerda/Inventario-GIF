@@ -4,77 +4,66 @@
     
     <div class="main-content">
       <!-- Panel de Filtros -->
-      <div class="filters-panel">
-        <h2>Filtros de Búsqueda</h2>
+      <div class="filtros-panel">
+        <h3>Filtros de Búsqueda</h3>
         
-        <div class="filter-group">
-          <label for="filter-serial">Serial:</label>
-          <input id="filter-serial" v-model="filters.serial" type="text" placeholder="Buscar por serial">
+        <div class="filtro-group">
+          <label for="filtro-serial">Serial:</label>
+          <input id="filtro-serial" v-model="filtros.serial" type="text" placeholder="Buscar por serial">
         </div>
         
-        <div class="filter-group">
-          <label for="filter-name">Nombre:</label>
-          <input id="filter-name" v-model="filters.nombre" type="text" placeholder="Buscar por nombre">
+        <div class="filtro-group">
+          <label for="filtro-name">Nombre:</label>
+          <input id="filtro-name" v-model="filtros.nombre" type="text" placeholder="Buscar por nombre">
         </div>
         
-        <div class="filter-group">
-          <label for="filter-status">Estatus:</label>
-          <select id="filter-status" v-model="filters.estatus">
+        <div class="filtro-group">
+          <label for="filtro-status">Estatus:</label>
+          <select id="filtro-status" v-model="filtros.estatus">
             <option value="">Todos</option>
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
         </div>
         
-        <div class="filter-group">
-          <label for="filter-site">Sitio:</label>
-          <select id="filter-site" v-model="filters.sitio">
+        <div class="filtro-group">
+          <label for="filtro-site">Sitio:</label>
+          <select id="filtro-site" v-model="filtros.sitio">
             <option value="">Todos</option>
             <option v-for="site in catalogOptions.sitios" :key="site" :value="site">{{ site }}</option>
           </select>
         </div>
         
-        <div class="filter-group">
-          <label for="filter-type">Tipo:</label>
-          <select id="filter-type" v-model="filters.tipo">
+        <div class="filtro-group">
+          <label for="filtro-type">Tipo:</label>
+          <select id="filtro-type" v-model="filtros.tipo">
             <option value="">Todos</option>
             <option v-for="type in catalogOptions.tipos" :key="type" :value="type">{{ type }}</option>
           </select>
         </div>
         
         <!-- Nuevos filtros por fecha -->
-        <div class="filter-group">
-          <label for="filter-soporte">Soporte vence en:</label>
-          <select id="filter-soporte" v-model="filters.soporte">
-            <option value="">Cualquier fecha</option>
-            <option value="6m">6 meses o menos</option>
-            <option value="1y">1 año o menos</option>
-            <option value="2y">2 años o menos</option>
-            <option value="vencido">Vencido</option>
-          </select>
+        <div class="filtro-group">
+          <label for="filtro-soporte">Soporte hasta:</label>
+          <input type="date" id="filtro-soporte" v-model="filtros.soporte">
         </div>
         
-        <div class="filter-group">
-          <label for="filter-vida">Vida útil vence en:</label>
-          <select id="filter-vida" v-model="filters.vida">
-            <option value="">Cualquier fecha</option>
-            <option value="6m">6 meses o menos</option>
-            <option value="1y">1 año o menos</option>
-            <option value="2y">2 años o menos</option>
-            <option value="vencido">Vencido</option>
-          </select>
+        <div class="filtro-group">
+          <label for="filtro-vida">Vida útil hasta:</label>
+          <input type="date" id="filtro-vida" v-model="filtros.vida">
         </div>
         
-        <button @click="applyFilters" class="search-button">Buscar</button>
-        <button @click="resetFilters" class="reset-button">Limpiar Filtros</button>
+        <button @click="buscarActivos" class="btnBuscar">Buscar</button>
+        <button @click="limpiarFiltros" class="btnLimpiar">Limpiar Filtros</button>
+
       </div>
       
       <!-- Resultados y Acciones -->
       <div class="results-section">
         <div class="results-header">
-          <h2>Resultados: {{ filteredAssets.length }} activos encontrados</h2>
+          <h2>Resultados: {{ activos.length }} activos encontrados</h2>
           <div class="actions">
-            <button @click="generateReport" class="report-button">
+            <button @click="generarReporte" class="report-button">
               Generar Reporte
             </button>
           </div>
@@ -85,50 +74,34 @@
           <table>
             <thead>
               <tr>
-                <th @click="sortBy('vSerial')">Serial</th>
-                <th @click="sortBy('vNombre')">Nombre</th>
-                <th @click="sortBy('vEstatus')">Estatus</th>
-                <th @click="sortBy('sitio_nombre')">Sitio</th>
-                <th @click="sortBy('tipo_nombre')">Tipo</th>
-                <th @click="sortBy('dFechaFinSoporte')">Fin Soporte</th>
-                <th @click="sortBy('dFechaFinVida')">Fin Vida</th>
+                <th @click="ordenarPor('vSerial')">Serial</th>
+                <th @click="ordenarPor('vNombre')">Nombre</th>
+                <th @click="ordenarPor('vEstatus')">Estatus</th>
+                <th @click="ordenarPor('sitio_nombre')">Sitio</th>
+                <th @click="ordenarPor('tipo_nombre')">Tipo</th>
+                <th @click="ordenarPor('dFechaFinSoporte')">Fin Soporte</th>
+                <th @click="ordenarPor('dFechaFinVida')">Fin Vida</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="asset in paginatedAssets" :key="asset.vSerial">
-                <td>{{ asset.vSerial }}</td>
-                <td>{{ asset.vNombre }}</td>
-                <td :class="`status-${asset.vEstatus.toLowerCase()}`">
-                  {{ asset.vEstatus }}
-                </td>
-                <td>{{ asset.sitio_nombre }}</td>
-                <td>{{ asset.tipo_nombre }}</td>
-                <td :class="getDateClass(asset.dFechaFinSoporte)">
-                  {{ formatDate(asset.dFechaFinSoporte) }}
-                </td>
-                <td :class="getDateClass(asset.dFechaFinVida)">
-                  {{ formatDate(asset.dFechaFinVida) }}
-                </td>
+              <tr v-for="activo in activos" :key="activo.vSerial">
+                <td>{{ activo[13] }}</td>
+                <td>{{ activo[2] }}</td>
+                <td>{{ activo[4] }}</td>
+                <td>{{ activo[33] }}</td>
+                <td>{{ activo[34] }}</td>
+                <td>{{ formatoFecha(activo[16]) }}</td>
+                <td>{{ formatoFecha(activo[17]) }}</td>
                 <td>
-                  <button @click="viewDetails(asset.vSerial)" class="action-btn view-btn">
-                    Ver
+                  <button @click="verDetalles(activo.vSerial)" class="action-btn details-btn">
+                    Detalles
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
           
-          <!-- Paginación -->
-          <div class="pagination">
-            <button @click="prevPage" :disabled="currentPage === 1">
-              Anterior
-            </button>
-            <span>Página {{ currentPage }} de {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages">
-              Siguiente
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -146,7 +119,7 @@
     },
     data() {
       return {
-        filters: {
+        filtros: {
           serial: '',
           nombre: '',
           estatus: '',
@@ -155,136 +128,55 @@
           soporte: '',
           vida: ''
         },
-        allAssets: [],
-        filteredAssets: [],
-        currentPage: 1,
-        itemsPerPage: 10,
-        sortField: 'vSerial',
-        sortDirection: 'asc',
+        campoOrden: 'vSerial',
+        direccionOrden: 'asc',
         catalogOptions: {
           sitios: [],
           tipos: []
-        }
+        },
+        activos: [],
       };
     },
-    computed: {
-      totalPages() {
-        return Math.ceil(this.filteredAssets.length / this.itemsPerPage);
-      },
-      paginatedAssets() {
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        const end = start + this.itemsPerPage;
-        
-        // Ordenar los datos
-        const sorted = [...this.filteredAssets].sort((a, b) => {
-          let modifier = 1;
-          if (this.sortDirection === 'desc') modifier = -1;
-          
-          if (a[this.sortField] < b[this.sortField]) return -1 * modifier;
-          if (a[this.sortField] > b[this.sortField]) return 1 * modifier;
-          return 0;
-        });
-        
-        return sorted.slice(start, end);
-      }
-    },
-    async created() {
-      await this.loadCatalogOptions();
-      await this.loadAssets();
+    async mounted() {
+      await this.loadCatalogOptions('Sitios', 'sitios');
+      await this.loadCatalogOptions('Tipos', 'tipos');
+      this.buscarActivos();
+      console.log(this.filtros);
     },
     methods: {
-      async loadCatalogOptions() {
+      async loadCatalogOptions(tabla, key) {
         try {
-          const [sitios, tipos] = await Promise.all([
-            axios.get('/api/options/Sitios'),
-            axios.get('/api/options/Tipos')
-          ]);
-          
-          this.catalogOptions.sitios = sitios.data;
-          this.catalogOptions.tipos = tipos.data;
+          const response = await axios.get(`http://localhost:5000/api/options/${tabla}`);
+          this.catalogOptions[key] = response.data;
+          console.log(`Opciones de ${tabla} cargadas correctamente`);
+          console.log(response.data);
         } catch (error) {
-          console.error('Error loading catalog options:', error);
+          console.error(`Error al cargar opciones de ${tabla}:`, error);
         }
       },
       
-      async loadAssets() {
+      async buscarActivos() {
         try {
-          const response = await axios.get('/api/activos');
-          this.allAssets = response.data.map(asset => ({
-            ...asset,
-            // Convertir fechas a objetos Date para facilitar comparaciones
-            finSoporteDate: new Date(asset.dFechaFinSoporte),
-            finVidaDate: new Date(asset.dFechaFinVida)
-          }));
-          this.filteredAssets = [...this.allAssets];
+          const response = await axios.post('http://localhost:5000/api/activos', {
+            serial: this.filtros.serial,
+            nombre: this.filtros.nombre,
+            estatus: this.filtros.estatus,
+            sitio: this.filtros.sitio,
+            tipo: this.filtros.tipo,
+            soporte: this.filtros.soporte,
+            vida: this.filtros.vida
+          });
+
+          this.activos = response.data;
+          console.log(this.activos);
+
         } catch (error) {
-          console.error('Error loading assets:', error);
+          console.error('Error al cargar los activos:', error);
         }
       },
       
-      applyFilters() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        this.filteredAssets = this.allAssets.filter(asset => {
-          // Filtros básicos
-          const basicFilters = (
-            (this.filters.serial === '' || asset.vSerial.includes(this.filters.serial)) &&
-            (this.filters.nombre === '' || asset.vNombre.toLowerCase().includes(this.filters.nombre.toLowerCase())) &&
-            (this.filters.estatus === '' || asset.vEstatus === this.filters.estatus) &&
-            (this.filters.sitio === '' || asset.sitio_nombre === this.filters.sitio) &&
-            (this.filters.tipo === '' || asset.tipo_nombre === this.filters.tipo)
-          );
-          
-          if (!basicFilters) return false;
-          
-          // Filtro por fecha de soporte
-          if (this.filters.soporte) {
-            const soporteDate = asset.finSoporteDate;
-            
-            if (this.filters.soporte === 'vencido') {
-              if (soporteDate >= today) return false;
-            } else {
-              const months = this.getMonthsFromFilter(this.filters.soporte);
-              const limitDate = new Date(today);
-              limitDate.setMonth(today.getMonth() + months);
-              
-              if (soporteDate < today || soporteDate > limitDate) return false;
-            }
-          }
-          
-          // Filtro por fecha de vida útil
-          if (this.filters.vida) {
-            const vidaDate = asset.finVidaDate;
-            
-            if (this.filters.vida === 'vencido') {
-              if (vidaDate >= today) return false;
-            } else {
-              const months = this.getMonthsFromFilter(this.filters.vida);
-              const limitDate = new Date(today);
-              limitDate.setMonth(today.getMonth() + months);
-              
-              if (vidaDate < today || vidaDate > limitDate) return false;
-            }
-          }
-          
-          return true;
-        });
-        
-        this.currentPage = 1;
-      },
-      
-      getMonthsFromFilter(filterValue) {
-        switch(filterValue) {
-          case '6m': return 6;
-          case '1y': return 12;
-          case '2y': return 24;
-          default: return 0;
-        }
-      },
-      
-      resetFilters() {
-        this.filters = {
+      limpiarFiltros() {
+        this.filtros = {
           serial: '',
           nombre: '',
           estatus: '',
@@ -293,55 +185,29 @@
           soporte: '',
           vida: ''
         };
-        this.filteredAssets = [...this.allAssets];
-        this.currentPage = 1;
+        this.buscarActivos();
       },
-      
-      sortBy(field) {
-        if (this.sortField === field) {
-          this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-          this.sortField = field;
-          this.sortDirection = 'asc';
-        }
-      },
-      
-      formatDate(dateString) {
+
+      formatoFecha(dateString) {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
         return date.toLocaleDateString('es-MX');
       },
-      
-      getDateClass(dateString) {
-        if (!dateString) return '';
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const date = new Date(dateString);
-        
-        if (date < today) return 'date-expired';
-        
-        const sixMonthsLater = new Date(today);
-        sixMonthsLater.setMonth(today.getMonth() + 6);
-        
-        if (date <= sixMonthsLater) return 'date-warning';
-        
-        return '';
+
+      ordenarPor(field) {
+        if (this.campoOrden === field) {
+          this.direccionOrden = this.direccionOrden === 'asc' ? 'desc' : 'asc';
+        } else {
+          this.campoOrden = field;
+          this.direccionOrden = 'asc';
+        }
       },
       
-      nextPage() {
-        if (this.currentPage < this.totalPages) this.currentPage++;
-      },
-      
-      prevPage() {
-        if (this.currentPage > 1) this.currentPage--;
-      },
-      
-      viewDetails(serial) {
+      verDetalles(serial) {
         this.$router.push(`/activo/${serial}`);
       },
       
-      async generateReport() {
+      async generarReporte() {
         try {
           // Encabezados del reporte
           const headers = [
@@ -351,26 +217,26 @@
           ];
           
           // Datos del reporte
-          const reportData = this.filteredAssets.map(asset => {
+          const reportData = this.activos.map(activo => {
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
             
-            const finSoporte = new Date(asset.dFechaFinSoporte);
-            const finVida = new Date(asset.dFechaFinVida);
+            const finSoporte = new Date(activo.dFechaFinSoporte);
+            const finVida = new Date(activo.dFechaFinVida);
             
             const diasSoporte = Math.ceil((finSoporte - hoy) / (1000 * 60 * 60 * 24));
             const diasVida = Math.ceil((finVida - hoy) / (1000 * 60 * 60 * 24));
             
             return [
-              asset.vSerial,
-              asset.vNombre,
-              asset.vEstatus,
-              asset.sitio_nombre,
-              asset.tipo_nombre,
-              asset.marca_nombre,
-              asset.vModelo,
-              this.formatDate(asset.dFechaFinSoporte),
-              this.formatDate(asset.dFechaFinVida),
+              activo.vSerial,
+              activo.vNombre,
+              activo.vEstatus,
+              activo.sitio_nombre,
+              activo.tipo_nombre,
+              activo.marca_nombre,
+              activo.vModelo,
+              activo.dFechaFinSoporte,
+              activo.dFechaFinVida,
               diasSoporte,
               diasVida
             ];
@@ -438,11 +304,12 @@
 .main-content {
   display: flex;
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   gap: 20px;
+  overflow: hidden;
 }
 
-.filters-panel {
+.filtros-panel {
   width: 300px;
   padding: 20px;
   background: #f5f5f5;
@@ -450,26 +317,26 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.filter-group {
+.filtro-group {
   margin-bottom: 15px;
 }
 
-.filter-group label {
+.filtro-group label {
   display: block;
   margin-bottom: 5px;
   font-weight: 600;
 }
 
-.filter-group input,
-.filter-group select {
+.filtro-group input,
+.filtro-group select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-.search-button,
-.reset-button {
+.btnBuscar,
+.btnLimpiar {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
@@ -479,17 +346,18 @@
   font-weight: 600;
 }
 
-.search-button {
+.btnBuscar {
   background-color: #4CAF50;
   color: white;
 }
 
-.reset-button {
+.btnLimpiar {
   background-color: #f44336;
   color: white;
 }
 
 .results-section {
+  height: 99%;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -499,7 +367,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .actions {
@@ -519,7 +387,7 @@
 
 .results-table {
   flex: 1;
-  overflow: auto;
+  overflow: scroll;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -579,7 +447,7 @@ tr:hover {
   cursor: pointer;
 }
 
-.view-btn {
+.details-btn {
   background-color: #2196F3;
   color: white;
 }

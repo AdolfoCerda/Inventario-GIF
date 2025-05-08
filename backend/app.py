@@ -691,38 +691,115 @@ def upload_file():
     finally:
         # Eliminar el archivo temporal
         os.remove(file_path)
-    
-if __name__ == '__main__':
-    app.run(debug=True)
 
-@app.get('/api/activos')
+@app.post('/api/activos')
 def obtener_activos():
+
+    filtros = request.get_json()
+    
+    serial = filtros.get("serial")
+    nombre = filtros.get("nombre")
+    estatus = filtros.get("estatus")
+    sitio = filtros.get("sitio")
+    tipo = filtros.get("tipo")
+    soporte = filtros.get("soporte")
+    vida = filtros.get("vida")
+
     try:
         conn = get_connection()
         cursor = conn.cursor()
 
-        query = """
-            SELECT 
-                e.*,
-                s.vNombre AS sitio_nombre,
-                t.vNombre AS tipo_nombre,
-                m.vNombre AS marca_nombre
-            FROM admin.equipos e
-            LEFT JOIN admin.sitios s ON e.iSitio = s.iId
-            LEFT JOIN admin.tipos t ON e.iTipo = t.iId
-            LEFT JOIN admin.marcas m ON e.iMarca = m.iId
-            ORDER BY e.vSerial
-        """
+        # Obtener ID Sitio y Tipo partir del texto en filtros
+        def get_catalog_id(table, name):
+            query = sql.SQL("SELECT iId FROM admin.{} WHERE vNombre = %s").format(sql.Identifier(table))
+            cursor.execute(query, (name,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+        
+        iSitio = 0
+        iTipo = 0
+        
+        iSitio = get_catalog_id('sitios', sitio)
+        print(iSitio)
+        iTipo = get_catalog_id('tipos', tipo)
+        print(iTipo)
+
+        consulta = "SELECT e.*, s.vNombre AS sitio_nombre, t.vNombre AS tipo_nombre, m.vNombre AS marca_nombre FROM admin.equipos e LEFT JOIN admin.sitios s ON e.iSitio = s.iId LEFT JOIN admin.tipos t ON e.iTipo = t.iId LEFT JOIN admin.marcas m ON e.iMarca = m.iId"
+
+        contFiltros = 0
+
+        # Validar si hay filtros
+        # Serial
+        if (serial != "" and contFiltros == 0):
+            consulta += " WHERE e.vSerial LIKE '"+serial+"%'"
+            contFiltros += 1
+        elif (serial != "" and contFiltros != 0):
+            consulta += " AND e.vSerial LIKE '"+serial+"%'"
+            contFiltros += 1
+
+        # Nombre
+        if (nombre != "" and contFiltros == 0):
+            consulta += " WHERE e.vNombre LIKE '"+nombre+"%'"
+            contFiltros += 1
+        elif (nombre != "" and contFiltros != 0):
+            consulta += " AND e.vNombre LIKE '"+nombre+"%'"
+            contFiltros += 1
+
+        # Estatus
+        if (estatus != "" and contFiltros == 0):
+            consulta += " WHERE e.vEstatus = '"+estatus+"'"
+            contFiltros += 1
+        elif (estatus != "" and contFiltros != 0):
+            consulta += " AND e.vEstatus = '"+estatus+"'"
+            contFiltros += 1
+
+        # Sitio
+        if (sitio != "" and contFiltros == 0):
+            consulta += " WHERE e.iSitio = "+str(iSitio)
+            contFiltros += 1
+        elif (sitio != "" and contFiltros != 0):
+            consulta += " AND e.iSitio = "+str(iSitio)
+            contFiltros += 1
+
+        # Tipo
+        if (tipo != "" and contFiltros == 0):
+            consulta += " WHERE e.iTipo = "+str(iTipo)
+            contFiltros += 1
+        elif (tipo != "" and contFiltros != 0):
+            consulta += " AND e.iTipo = "+str(iTipo)
+            contFiltros += 1
+
+        # Soporte
+        if (soporte != "" and contFiltros == 0):
+            consulta += " WHERE e.dFechaFinSoporte <= '"+soporte+"'"
+            contFiltros += 1
+        elif (soporte != "" and contFiltros != 0):
+            consulta += " AND e.dFechaFinSoporte <= '"+soporte+"'"
+            contFiltros += 1
+
+        # Vida
+        if (vida != "" and contFiltros == 0):
+            consulta += " WHERE e.dFechaFinVida <= '"+vida+"'"
+            contFiltros += 1
+        elif (vida != "" and contFiltros != 0):
+            consulta += " AND e.dFechaFinVida <= '"+vida+"'"
+            contFiltros += 1
+
+        consulta += " ORDER BY e.vSerial"
+
+        print(consulta)
+
+        query = consulta
         
         cursor.execute(query)
-        columns = [desc[0] for desc in cursor.description]
-        activos = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        activos = cursor.fetchall()
+        cursor.close()
+        conn.close()
 
         return jsonify(activos)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        if conn:
-            cursor.close()
-            conn.close()
+    
+if __name__ == '__main__':
+    app.run(debug=True)
