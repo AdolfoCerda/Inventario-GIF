@@ -777,7 +777,7 @@
 
   .form-section {
     margin-bottom: 6px;
-    padding: 6px;
+    padding: 4px;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f9f9f9;

@@ -704,6 +704,8 @@ def obtener_activos():
     tipo = filtros.get("tipo")
     soporte = filtros.get("soporte")
     vida = filtros.get("vida")
+    orden = filtros.get("orden")
+    direccion = filtros.get("direccion")
 
     try:
         conn = get_connection()
@@ -785,7 +787,10 @@ def obtener_activos():
             consulta += " AND e.dFechaFinVida <= '"+vida+"'"
             contFiltros += 1
 
-        consulta += " ORDER BY e.vSerial"
+        if (direccion):
+            consulta += " ORDER BY "+orden+" ASC"
+        else:
+            consulta += " ORDER BY "+orden+" DESC"
 
         print(consulta)
 
@@ -800,10 +805,6 @@ def obtener_activos():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 # Prueba para view Configuraciones
 # Endpoint genérico para manejar catálogos
@@ -901,3 +902,6 @@ def gestionar_catalogo(tabla):
             cursor.close()
         if conn:
             conn.close()
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -74,13 +74,13 @@
           <table>
             <thead>
               <tr>
-                <th @click="ordenarPor('vSerial')">Serial</th>
-                <th @click="ordenarPor('vNombre')">Nombre</th>
-                <th @click="ordenarPor('vEstatus')">Estatus</th>
-                <th @click="ordenarPor('sitio_nombre')">Sitio</th>
-                <th @click="ordenarPor('tipo_nombre')">Tipo</th>
-                <th @click="ordenarPor('dFechaFinSoporte')">Fin Soporte</th>
-                <th @click="ordenarPor('dFechaFinVida')">Fin Vida</th>
+                <th @click="orden='e.vSerial', direccion = !direccion, buscarActivos()">Serial</th>
+                <th @click="orden='e.vNombre', direccion = !direccion, buscarActivos()">Nombre</th>
+                <th @click="orden='e.vEstatus', direccion = !direccion, buscarActivos()">Estatus</th>
+                <th @click="orden='sitio_nombre', direccion = !direccion, buscarActivos()">Sitio</th>
+                <th @click="orden='tipo_nombre', direccion = !direccion, buscarActivos()">Tipo</th>
+                <th @click="orden='e.dFechaFinSoporte', direccion = !direccion, buscarActivos()">Fin Soporte</th>
+                <th @click="orden='e.dFechaFinVida', direccion = !direccion, buscarActivos()">Fin Vida</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -128,8 +128,8 @@
           soporte: '',
           vida: ''
         },
-        campoOrden: 'vSerial',
-        direccionOrden: 'asc',
+        orden: 'e.vSerial',
+        direccion: true,
         catalogOptions: {
           sitios: [],
           tipos: []
@@ -164,7 +164,9 @@
             sitio: this.filtros.sitio,
             tipo: this.filtros.tipo,
             soporte: this.filtros.soporte,
-            vida: this.filtros.vida
+            vida: this.filtros.vida,
+            orden: this.orden,
+            direccion: this.direccion
           });
 
           this.activos = response.data;
@@ -185,6 +187,8 @@
           soporte: '',
           vida: ''
         };
+        this.orden = 'e.vSerial';
+        this.direccion = true;
         this.buscarActivos();
       },
 
@@ -194,14 +198,14 @@
         return date.toLocaleDateString('es-MX');
       },
 
-      ordenarPor(field) {
-        if (this.campoOrden === field) {
-          this.direccionOrden = this.direccionOrden === 'asc' ? 'desc' : 'asc';
-        } else {
-          this.campoOrden = field;
-          this.direccionOrden = 'asc';
-        }
-      },
+      //ordenarPor(field) {
+      //  if (this.campoOrden === field) {
+      //    this.direccionOrden = this.direccionOrden === 'asc' ? 'desc' : 'asc';
+      //  } else {
+      //    this.campoOrden = field;
+      //    this.direccionOrden = 'asc';
+      //  }
+      //},
       
       verDetalles(serial) {
         this.$router.push(`/activo/${serial}`);
