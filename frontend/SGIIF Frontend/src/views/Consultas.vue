@@ -85,7 +85,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="activo in activos" :key="activo.vSerial">
+              <tr v-for="activo in activos" :key="activo[13]">
                 <td>{{ activo[13] }}</td>
                 <td>{{ activo[2] }}</td>
                 <td>{{ activo[4] }}</td>
@@ -94,7 +94,7 @@
                 <td>{{ formatoFecha(activo[16]) }}</td>
                 <td>{{ formatoFecha(activo[17]) }}</td>
                 <td>
-                  <button @click="verDetalles(activo.vSerial)" class="action-btn details-btn">
+                  <button @click="verDetalles(activo)" class="action-btn details-btn">
                     Detalles
                   </button>
                 </td>
@@ -103,6 +103,47 @@
           </table>
           
         </div>
+
+        <!-- Modal de Detalles -->
+    <div v-if="mostrarModal" class="modal-overlay" @click.self="cerrarModal">
+      <div class="modal-content">
+        <span class="close-btn" @click="cerrarModal">&times;</span>
+        <h3>Detalles del Activo</h3>
+        
+        <div v-if="activoSeleccionado" class="detalles-activo">
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Serial:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[13] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Nombre:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[2] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Estatus:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[4] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Sitio:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[33] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Tipo:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[34] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Fin Soporte:</span>
+            <span class="detalle-valor">{{ formatoFecha(activoSeleccionado[16]) }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Fin Vida:</span>
+            <span class="detalle-valor">{{ formatoFecha(activoSeleccionado[17]) }}</span>
+          </div>
+          <!-- Agregar más campos -->
+        </div>
+      </div>
+    </div>
+
       </div>
     </div>
   </div>
@@ -135,6 +176,8 @@
           tipos: []
         },
         activos: [],
+        mostrarModal: false,
+        activoSeleccionado: null
       };
     },
     async mounted() {
@@ -198,17 +241,14 @@
         return date.toLocaleDateString('es-MX');
       },
 
-      //ordenarPor(field) {
-      //  if (this.campoOrden === field) {
-      //    this.direccionOrden = this.direccionOrden === 'asc' ? 'desc' : 'asc';
-      //  } else {
-      //    this.campoOrden = field;
-      //    this.direccionOrden = 'asc';
-      //  }
-      //},
-      
-      verDetalles(serial) {
-        this.$router.push(`/activo/${serial}`);
+      verDetalles(activo) {
+        this.activoSeleccionado = activo;
+        this.mostrarModal = true;
+      },
+
+      cerrarModal() {
+        this.mostrarModal = false;
+        this.activoSeleccionado = null;
       },
       
       async generarReporte() {
@@ -216,33 +256,31 @@
           // Encabezados del reporte
           const headers = [
             'Serial', 'Nombre', 'Estatus', 'Sitio', 'Tipo', 
-            'Marca', 'Modelo', 'Fin Soporte', 'Fin Vida', 
-            'Días hasta fin soporte', 'Días hasta fin vida'
+            'Fin Soporte', 'Fin Vida'
+            //'Días hasta fin soporte', 'Días hasta fin vida'
           ];
           
           // Datos del reporte
           const reportData = this.activos.map(activo => {
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
+            //const hoy = new Date();
+            //hoy.setHours(0, 0, 0, 0);
             
-            const finSoporte = new Date(activo.dFechaFinSoporte);
-            const finVida = new Date(activo.dFechaFinVida);
+            //const finSoporte = new Date(activo.dFechaFinSoporte);
+            //const finVida = new Date(activo.dFechaFinVida);
             
-            const diasSoporte = Math.ceil((finSoporte - hoy) / (1000 * 60 * 60 * 24));
-            const diasVida = Math.ceil((finVida - hoy) / (1000 * 60 * 60 * 24));
+            //const diasSoporte = Math.ceil((finSoporte - hoy) / (1000 * 60 * 60 * 24));
+            //const diasVida = Math.ceil((finVida - hoy) / (1000 * 60 * 60 * 24));
             
             return [
-              activo.vSerial,
-              activo.vNombre,
-              activo.vEstatus,
-              activo.sitio_nombre,
-              activo.tipo_nombre,
-              activo.marca_nombre,
-              activo.vModelo,
-              activo.dFechaFinSoporte,
-              activo.dFechaFinVida,
-              diasSoporte,
-              diasVida
+              activo[13],
+              activo[2],
+              activo[4],
+              activo[33],
+              activo[34],
+              this.formatoFecha(activo[16]),
+              this.formatoFecha(activo[17])
+              //diasSoporte,
+              //diasVida
             ];
           });
           
@@ -476,4 +514,72 @@ tr:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Estilos para el modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* Estilos para los detalles */
+.detalles-activo {
+  margin-top: 15px;
+}
+
+.detalle-fila {
+  display: flex;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.detalle-fila:last-child {
+  border-bottom: none;
+}
+
+.detalle-etiqueta {
+  font-weight: bold;
+  min-width: 120px;
+  color: #555;
+}
+
+.detalle-valor {
+  flex: 1;
+}
+
+
 </style>
