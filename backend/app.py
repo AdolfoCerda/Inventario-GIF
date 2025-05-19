@@ -903,5 +903,46 @@ def gestionar_catalogo(tabla):
         if conn:
             conn.close()
 
+@app.route('/api/activos/notificaciones', methods=['GET'])
+def obtener_notificaciones():
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        hoy = datetime.now().date()
+        seis_meses = hoy + timedelta(days=180)  # Aprox 6 meses
+
+        # Activos con soporte que vence en 6 meses o menos
+        cursor.execute("""
+            SELECT vSerial, vNombre, dFechaFinSoporte 
+            FROM admin.equipos 
+            WHERE dFechaFinSoporte BETWEEN %s AND %s
+            ORDER BY dFechaFinSoporte
+        """, (hoy, seis_meses))
+        soporte = cursor.fetchall()
+
+        # Activos con vida útil que vence en 6 meses o menos
+        cursor.execute("""
+            SELECT vSerial, vNombre, dFechaFinVida 
+            FROM admin.equipos 
+            WHERE dFechaFinVida BETWEEN %s AND %s
+            ORDER BY dFechaFinVida
+        """, (hoy, seis_meses))
+        vida = cursor.fetchall()
+
+        return jsonify({
+            'soporte': [dict(zip(['serial', 'nombre', 'fecha'], row)) for row in soporte],
+            'vida': [dict(zip(['serial', 'nombre', 'fecha'], row)) for row in vida]
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 if __name__ == '__main__':
     app.run(debug=True)
