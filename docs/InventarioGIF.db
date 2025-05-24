@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Equipos (
   vModelo varchar(100) NOT NULL,
   vSerial varchar(20) PRIMARY KEY,
   iServicio integer NOT NULL,
-  dFechaInicioSoporte date NOT NULL,
+  dFechaInicioSoporte date,
   dFechaFinSoporte date NOT NULL,
   dFechaFinVida date NOT NULL,
   vIpRed varchar(50),
@@ -114,7 +114,9 @@ ALTER TABLE Equipos ADD CONSTRAINT Equipos_iSistema_fk FOREIGN KEY (iSistema) RE
 ALTER TABLE Equipos ADD CONSTRAINT Equipos_iRack_fk FOREIGN KEY (iRack) REFERENCES Racks (iId);
 
 INSERT INTO usuarios (vuser, vpassword) VALUES ('adolfo', '123');
-INSERT INTO Sitios (vNombre) VALUES ('TRIARA');
+INSERT INTO Sitios (vNombre) VALUES
+('TRIARA'),
+('Tigre');
 INSERT INTO Ambientes (vNombre) VALUES ('Produccion');
 INSERT INTO Tipos (vNombre) VALUES 
 ('Almacenamiento'),
@@ -141,14 +143,16 @@ INSERT INTO Servicios (vNombre) VALUES
 ('ETL'),
 ('Fabric'),
 ('Huellas'),
-('HYPERVISOR'),
+('Hipervisor'),
 ('Hypervisor Afore'),
-('Switch MDS');
+('Switch MDS'),
+('Multiples');
 INSERT INTO Dueños (vNombre) VALUES 
 ('Jose Garcia'),
 ('Luis Garibaldi'),
 ('Victor Beltran'),
-('Jesus Medina');
+('Jesus Medina'),
+('GSV');
 INSERT INTO Procesadores (vNombre) VALUES 
 ('Intel Xeon 6 Gen'),
 ('AMD EPYC 5 Gen');
@@ -180,7 +184,7 @@ INSERT INTO Equipos (
   1, 'Server 1 (HuellasMTY01)', true, 'Activo', '2024-06-05', 
   1, 1, 'Huella Triara', 'Fabric B', 'A', 
   1, 'UCSB-B480-M5', 'FLM24470503', 
-  1, '2024-06-01', '2025-10-31', '2029-05-31', 
+  13, '2024-06-01', '2025-10-31', '2029-05-31', 
   '192.168.1.1', '192.168.1.2', 1,
   1, 4, 16, 1,
   5, '1TB', 4, '32GB',

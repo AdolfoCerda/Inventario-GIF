@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from psycopg2 import connect, sql
+from psycopg2 import connect, sql, Error
 from datetime import date
 import os
 import pandas as pd
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})  # Habilitar CORS para todas las rutas bajo /api
@@ -104,7 +105,7 @@ def obtener_servicios():
         "etl": False,
         "fabric": False,
         "huellas": False,
-        "hypervisor": False,
+        "hipervisor": False,
         "hvafore": False,
         "switchmds": False
     }
@@ -150,8 +151,8 @@ def obtener_servicios():
                     servicios_estado["fabric"] = True
                 elif vNombre == 'huellas':
                     servicios_estado["huellas"] = True
-                elif vNombre == 'hypervisor':
-                    servicios_estado["hypervisor"] = True
+                elif vNombre == 'hipervisor':
+                    servicios_estado["hipervisor"] = True
                 elif vNombre == 'hypervisor afore':
                     servicios_estado["hvafore"] = True
                 elif vNombre == 'switch mds':
@@ -286,7 +287,7 @@ def agregar_activo():
     etl = datos.get("ETL")
     fabric = datos.get("fabric")
     huellas = datos.get("huellas")
-    hypervisor = datos.get("hypervisor")
+    hipervisor = datos.get("hipervisor")
     hvafore = datos.get("HVafore")
     switchmds = datos.get("switchMDS")
 
@@ -375,7 +376,7 @@ def agregar_activo():
         if huellas:
             queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 9); """
             cursor.execute(queryservicios, (vSerial,))
-        if hypervisor:
+        if hipervisor:
             queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 10); """
             cursor.execute(queryservicios, (vSerial,))
         if hvafore:
@@ -433,7 +434,7 @@ def actualizar_activo():
     etl = datos.get("ETL")
     fabric = datos.get("fabric")
     huellas = datos.get("huellas")
-    hypervisor = datos.get("hypervisor")
+    hipervisor = datos.get("hipervisor")
     hvafore = datos.get("HVafore")
     switchmds = datos.get("switchMDS")
 
@@ -555,7 +556,7 @@ def actualizar_activo():
         else:
             queryservicios = """ DELETE FROM admin.EquipoServicio WHERE vSerialEquipo = %s AND iIdServicio = 9; """
             cursor.execute(queryservicios, (vSerial,))
-        if hypervisor:
+        if hipervisor:
             queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, 10)
             ON CONFLICT (vSerialEquipo, iIdServicio) DO NOTHING; """
             cursor.execute(queryservicios, (vSerial,))
@@ -590,15 +591,29 @@ def actualizar_activo():
 @app.post('/api/upload')
 def upload_file():
     file = request.files['file']
-    commits = 0
-
+    filename = secure_filename(file.filename)
     # Guardar el archivo temporalmente
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
+    commits = 0
+
     try:
-        # Leer el archivo Excel
-        dataframe = pd.read_excel(file_path)
+
+        # Detectar el tipo de archivo y convertirlo a .xlsx si es necesario
+        if filename.endswith('.xls'):
+            # Leer archivo .xls y convertir a .xlsx
+            dataframe = pd.read_excel(file_path, engine='xlrd')
+            xlsx_path = file_path.replace('.xls', '.xlsx')
+            dataframe.to_excel(xlsx_path, index=False, engine='openpyxl')
+            os.remove(file_path)  # Eliminar el archivo original
+            file_path = xlsx_path
+
+        elif filename.endswith('.xlsx'):
+            # Leer directamente si es .xlsx
+            dataframe = pd.read_excel(file_path, engine='openpyxl')
+        else:
+            return jsonify({'error': 'Formato de archivo no soportado'}), 400
         
         conn = get_connection()
         cursor = conn.cursor()
@@ -616,14 +631,33 @@ def upload_file():
             # Si el campo 'sitio' (primera columna) está vacío, detener el proceso
             if pd.isna(row.iloc[1]):
                 break
+            #print(row)
 
             # Mapear y validar los datos
             sitio = get_catalog_id('sitios', row.iloc[1])
+            #print("sitio: "+row.iloc[1])
+            #print("ID SITIO: "+str(sitio))
             ambiente = get_catalog_id('ambientes', row.iloc[4])
+            #print("ambiente: "+row.iloc[4])
+            #print("ID AMBIENTE: "+str(ambiente))
             tipo = get_catalog_id('tipos', row.iloc[5])
-            marca = get_catalog_id('marcas', row.iloc[9])
-            servicio = get_catalog_id('servicios', row.iloc[14])
-            dueño = get_catalog_id('dueños', row.iloc[20])
+            #print("tipo: "+row.iloc[5])
+            #print("ID TIPO: "+str(tipo))
+            marca = get_catalog_id('marcas', row.iloc[10])
+            #print("marca: "+row.iloc[10])
+            #print("ID MARCA: "+str(marca))
+            servicio = get_catalog_id('servicios', row.iloc[15].strip())
+            #print("servicio: "+row.iloc[15])
+            #print("ID SERVICIO: "+str(servicio))
+            dueño = get_catalog_id('dueños', row.iloc[22])
+            #print("dueño: "+row.iloc[22])
+            #print("ID: DUEÑO: "+str(dueño))
+            rack = None
+            print("rack de excel: "+str(row.iloc[7]))
+            if pd.notnull(row.iloc[7]):
+                rack = get_catalog_id('racks', row.iloc[7])
+            print("rack: "+str(rack))
+            
 
             if None in [sitio, ambiente, tipo, marca, servicio, dueño]:
                 return jsonify({'error': 'Valor no incluido en los catálogos'}), 400
@@ -631,50 +665,79 @@ def upload_file():
             # Preparar los datos para la inserción
             iSitio = sitio
             vNombre = row.iloc[2]
+            #print("vNombre: "+vNombre)
             bEncendido = True if row.iloc[3].strip().lower() == 'on' else False
+            #print("bEncendido: "+str(bEncendido))
+            vEstatus = 'Activo' if row.iloc[19] == 'Vigente' else 'Inactivo'
+            #print("vEstatus: "+vEstatus)
             dFechaEstatus = date.today()
             iAmbiente = ambiente
             iTipo = tipo
             vCluster = row.iloc[6]
-            vChassis = row.iloc[7]
-            vBahia = row.iloc[8]
+            #print("vCluster: "+vCluster)
+            iRack = rack
+            vChassis = row.iloc[8]
+            #print("vChassis: "+vChassis)
+            vBahia = str(row.iloc[9])
+            #print("vBahia: "+str(vBahia))
             iMarca = marca
-            vModelo = row.iloc[10]
-            vSerial = row.iloc[11]
-            iNucleos = row.iloc[12]
-            iMemoria = row.iloc[13]
+            vModelo = row.iloc[11]
+            #print("vModelo: "+vModelo)
+            vSerial = row.iloc[12]
+            #print("vSerial: "+vSerial)
+            iNucleos = row.iloc[13]
+            #print("iNucleos: "+str(iNucleos))
+            vCapacidadRam = row.iloc[14]
+            #print("vCapacidadRam: "+str(vCapacidadRam))
             iServicio = servicio
-            dFechaInicioSoporte = row.iloc[15].strftime('%Y-%m-%d')
-            dFechaFinSoporte = row.iloc[16].strftime('%Y-%m-%d')
-            dFechaFinVida = row.iloc[17].strftime('%Y-%m-%d')
-            vIpRed = row.iloc[18]
-            vIpILO = row.iloc[19]
+            dFechaInicioSoporte = row.iloc[16].strftime('%Y-%m-%d') if pd.notnull(row.iloc[16]) else None
+            #print("dFechaInicioSoporte: "+dFechaInicioSoporte)
+            dFechaFinSoporte = row.iloc[17].strftime('%Y-%m-%d')
+            #print("dFechaFinSoporte: "+dFechaFinSoporte)
+            dFechaFinVida = row.iloc[18].strftime('%Y-%m-%d')
+            #print("dFechaFinVida: "+dFechaFinVida)
+            vIpRed = row.iloc[20]
+            #print("vIpRed: "+vIpRed)
+            vIpILO = row.iloc[21] if pd.notnull(row.iloc[21]) else None
+            #print("vIpILO: "+str(vIpILO))
             iDueño = dueño
-            iHDD = row.iloc[21]
+            vCapacidadAlmac = row.iloc[23] if pd.notnull(row.iloc[23]) else None
+            #print("vCapacidadAlmac: "+str(vCapacidadAlmac))
 
             # Insertar el equipo en la base de datos
             query = """
             INSERT INTO admin.equipos (
                 iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
                 iAmbiente, iTipo, vCluster, vChassis, vBahia, 
-                iMarca, vModelo, vSerial, iNucleos, iMemoria, 
+                iMarca, vModelo, vSerial, iNucleos, vCapacidadRam, 
                 iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
-                vIpRed, vIpILO, iDueño, iHDD
+                vIpRed, vIpILO, iDueño, vCapacidadAlmac, iRack
             ) VALUES (
-                %s, %s, %s, 'Activo', %s, 
+                %s, %s, %s, %s, %s, 
                 %s, %s, %s, %s, %s, 
                 %s, %s, %s, %s, %s, 
                 %s, %s, %s, %s, 
-                %s, %s, %s, %s
+                %s, %s, %s, %s, %s
             )
             """
-            cursor.execute(query, (
-            iSitio, vNombre, bEncendido, dFechaEstatus, 
-            iAmbiente, iTipo, vCluster, vChassis, vBahia, 
-            iMarca, vModelo, vSerial, iNucleos, iMemoria, 
-            iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
-            vIpRed, vIpILO, iDueño, iHDD
-            ))
+            params = (
+                iSitio, vNombre, bEncendido, vEstatus, dFechaEstatus, 
+                iAmbiente, iTipo, vCluster, vChassis, vBahia, 
+                iMarca, vModelo, vSerial, iNucleos, vCapacidadRam, 
+                iServicio, dFechaInicioSoporte, dFechaFinSoporte, dFechaFinVida, 
+                vIpRed, vIpILO, iDueño, vCapacidadAlmac, iRack
+            )
+
+            # Imprimir el SQL
+            print(cursor.mogrify(query, params).decode('utf-8'))
+
+            # Ejecutar el query
+            cursor.execute(query, params)
+
+            # Registrar servicio en tabla EquipoServicio
+            queryservicios = """ INSERT INTO admin.EquipoServicio (vSerialEquipo, iIdServicio) VALUES (%s, %s); """
+            cursor.execute(queryservicios, (vSerial, iServicio))
+
             conn.commit()
             commits += 1
             
@@ -685,7 +748,11 @@ def upload_file():
             return jsonify({'message': 'Carga masiva completada exitosamente'}), 200
         else:
             return jsonify({'error': str(e)}), 500
-
+        
+    except Error as e:
+        print("Error en la consulta SQL.")
+        print(f"Mensaje de error: {e}")
+        print(f"Consulta que falló: {query}")
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
@@ -726,7 +793,7 @@ def obtener_activos():
         iTipo = get_catalog_id('tipos', tipo)
         print(iTipo)
 
-        consulta = "SELECT e.*, s.vNombre AS sitio_nombre, t.vNombre AS tipo_nombre, m.vNombre AS marca_nombre FROM admin.equipos e LEFT JOIN admin.sitios s ON e.iSitio = s.iId LEFT JOIN admin.tipos t ON e.iTipo = t.iId LEFT JOIN admin.marcas m ON e.iMarca = m.iId"
+        consulta = "SELECT e.*, s.vNombre AS sitio_nombre, t.vNombre AS tipo_nombre, m.vNombre AS marca_nombre, a.vNombre AS ambiente_nombre, r.vNombre AS rack_nombre, se.vNombre AS servicio_nombre, d.vNombre AS dueño_nombre FROM admin.equipos e LEFT JOIN admin.sitios s ON e.iSitio = s.iId LEFT JOIN admin.tipos t ON e.iTipo = t.iId LEFT JOIN admin.marcas m ON e.iMarca = m.iId LEFT JOIN admin.ambientes a ON e.iAmbiente = a.iId LEFT JOIN admin.racks r ON e.iRack = r.iId LEFT JOIN admin.servicios se ON e.iServicio = se.iId LEFT JOIN admin.dueños d ON e.iDueño = d.iId"
 
         contFiltros = 0
 

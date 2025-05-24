@@ -5,8 +5,8 @@
       <div class="upload-container">
         <!-- Recuadro central -->
         <div class="upload-box">
-          <p class="upload-text">Sube tu archivo (Solo .CSV y .xlsx)</p>
-          <input type="file" class="file-input" @change="handleFileUpload" accept=".csv, .xlsx" />
+          <p class="upload-text">Sube tu archivo Excel (.xls, .xlsx)</p>
+          <input type="file" class="file-input" @change="handleFileUpload" accept=".xls, .xlsx" />
           <button class="upload-button" @click="submitFile">Enviar Archivo</button>
         </div>
       </div>

@@ -112,24 +112,72 @@
         
         <div v-if="activoSeleccionado" class="detalles-activo">
           <div class="detalle-fila">
-            <span class="detalle-etiqueta">Serial:</span>
-            <span class="detalle-valor">{{ activoSeleccionado[13] }}</span>
-          </div>
-          <div class="detalle-fila">
-            <span class="detalle-etiqueta">Nombre:</span>
-            <span class="detalle-valor">{{ activoSeleccionado[2] }}</span>
-          </div>
-          <div class="detalle-fila">
-            <span class="detalle-etiqueta">Estatus:</span>
-            <span class="detalle-valor">{{ activoSeleccionado[4] }}</span>
+            <span class="detalle-etiqueta">ID:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[0] }}</span>
           </div>
           <div class="detalle-fila">
             <span class="detalle-etiqueta">Sitio:</span>
             <span class="detalle-valor">{{ activoSeleccionado[33] }}</span>
           </div>
           <div class="detalle-fila">
+            <span class="detalle-etiqueta">Nombre:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[2] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Encendido:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[3] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Ambiente:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[36] }}</span>
+          </div>
+          <div class="detalle-fila">
             <span class="detalle-etiqueta">Tipo:</span>
             <span class="detalle-valor">{{ activoSeleccionado[34] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Cluster:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[8] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Rack:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[37] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Chassis:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[9] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Bahia:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[10] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Marca:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[35] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Modelo:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[12] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Serial:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[13] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Núcleos:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[23] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Memoria:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[28] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Servicio:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[38] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Inicio Soporte:</span>
+            <span class="detalle-valor">{{ formatoFecha(activoSeleccionado[15]) }}</span>
           </div>
           <div class="detalle-fila">
             <span class="detalle-etiqueta">Fin Soporte:</span>
@@ -139,7 +187,31 @@
             <span class="detalle-etiqueta">Fin Vida:</span>
             <span class="detalle-valor">{{ formatoFecha(activoSeleccionado[17]) }}</span>
           </div>
-          <!-- Agregar más campos -->
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Estatus:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[4] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">IP Red (SO):</span>
+            <span class="detalle-valor">{{ activoSeleccionado[18] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">IP Admin:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[19] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">Dueño:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[39] }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="detalle-etiqueta">HDD:</span>
+            <span class="detalle-valor">{{ activoSeleccionado[26] }}</span>
+          </div>
+          
+          
+
+
+
         </div>
       </div>
     </div>
@@ -255,8 +327,9 @@
         try {
           // Encabezados del reporte
           const headers = [
-            'Serial', 'Nombre', 'Estatus', 'Sitio', 'Tipo', 
-            'Fin Soporte', 'Fin Vida'
+            'ID', 'Sitio', 'Name', 'Power', 'ambiente', 'tipo', 'cluster', 'Rack', 'chassis', 'bahia',
+            'marca', 'Model', 'Serial', 'Cores', 'Memory (GB)', 'Servicio', 'Fecha Ini Soporte', 'Fecha Fin Soporte', 'Fecha Fin de Vida', 'Estatus EOL',
+            'IP red(SO)', 'IP Admin', 'Dueño', 'HDD(GB)'
             //'Días hasta fin soporte', 'Días hasta fin vida'
           ];
           
@@ -272,13 +345,30 @@
             //const diasVida = Math.ceil((finVida - hoy) / (1000 * 60 * 60 * 24));
             
             return [
-              activo[13],
-              activo[2],
-              activo[4],
-              activo[33],
-              activo[34],
-              this.formatoFecha(activo[16]),
-              this.formatoFecha(activo[17])
+              activo[0], //ID
+              activo[33], //Sitio
+              activo[2], //Nombre
+              activo[3] ? "on" : "off", //power/encendido
+              activo[36], //Ambiente
+              activo[34], //Tipo
+              activo[8], //Cluster
+              activo[37], //Rack
+              activo[9], //Chassis
+              activo[10], //Bahia
+              activo[35], //Marca
+              activo[12], //modelo
+              activo[13], //serial
+              activo[23], //nucleos
+              activo[28], //memoria
+              activo[38], //servicio
+              this.formatoFecha(activo[15]), //fechainicio
+              this.formatoFecha(activo[16]), //fechafinsoporte
+              this.formatoFecha(activo[17]), //fechafinvida
+              activo[4] === 'Activo' ? "Vigente" : "Vencido", //estatuseol
+              activo[18], //ipred
+              activo[19], //ipilo
+              activo[39], //dueño
+              activo[26], //hdd
               //diasSoporte,
               //diasVida
             ];

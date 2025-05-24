@@ -157,8 +157,8 @@
             <label for="fabric">Fabric</label>
           </div>
           <div class="form-group servicio-check">
-            <input type="checkbox" id="hypervisor" v-model="asset.Hypervisor"/>
-            <label for="hypervisor">HYPERVISOR</label>
+            <input type="checkbox" id="hipervisor" v-model="asset.Hipervisor"/>
+            <label for="hipervisor">Hipervisor</label>
           </div>
           <div class="form-group servicio-check">
             <input type="checkbox" id="switchMDS" v-model="asset.SwitchMDS"/>
@@ -389,7 +389,7 @@
         Chassis: '',
         Bahia: '',
         Modelo: '',
-        Servicio: 'Afore',
+        Servicio: 'Multiples',
         FechaInicioSoporte: '',
         FechaFinSoporte: '',
         FechaFinVida: '',
@@ -422,19 +422,7 @@
         Biometrico: '',
         ServChassis: '',
         Fabric: '',
-        Hypervisor: '',
-        SwitchMDS: '',
-        Afore: '',
-        BanCoppel: '',
-        Cartera: '',
-        ETL: '',
-        Huellas: '',
-        HVAfore: '',
-        Almacenamiento: '',
-        Biometrico: '',
-        ServChassis: '',
-        Fabric: '',
-        Hypervisor: '',
+        Hipervisor: '',
         SwitchMDS: '',
         },
       catalogOptions: {
@@ -574,7 +562,7 @@
           this.asset.Biometrico = response.data.biometrico;
           this.asset.ServChassis = response.data.chassis;
           this.asset.Fabric = response.data.fabric;
-          this.asset.Hypervisor = response.data.hypervisor;
+          this.asset.Hipervisor = response.data.hipervisor;
           this.asset.SwitchMDS = response.data.switchmds;
         }
       } catch (error) {
@@ -664,7 +652,7 @@
         biometrico: this.asset.Biometrico,
         servchassis: this.asset.ServChassis,
         fabric: this.asset.Fabric,
-        hypervisor: this.asset.Hypervisor,
+        hipervisor: this.asset.Hipervisor,
         switchMDS: this.asset.SwitchMDS
 
       };
@@ -742,19 +730,7 @@
       Biometrico: '',
       ServChassis: '',
       Fabric: '',
-      Hypervisor: '',
-      SwitchMDS: '',
-      Afore: '',
-      BanCoppel: '',
-      Cartera: '',
-      ETL: '',
-      Huellas: '',
-      HVAfore: '',
-      Almacenamiento: '',
-      Biometrico: '',
-      ServChassis: '',
-      Fabric: '',
-      Hypervisor: '',
+      Hipervisor: '',
       SwitchMDS: '',
     };
     this.existe = false;
